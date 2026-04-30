@@ -79,6 +79,7 @@ const Index = () => {
         .select().single();
       if (error || !data) { toast.error("Couldn't start chat"); setSending(false); return; }
       convId = data.id;
+      skipLoadRef.current = convId; // prevent the activeId effect from wiping optimistic UI
       setActiveId(convId);
       loadConversations();
     }
