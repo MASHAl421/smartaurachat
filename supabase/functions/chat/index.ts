@@ -4,7 +4,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const POLICIES = `# Government College Policies (Authoritative Source)
+const POLICIES = `# PART A — GOVERNMENT COLLEGE CODE OF CONDUCT (Authoritative)
 
 ## CODE OF CONDUCT
 Every student must follow these rules:
@@ -47,7 +47,7 @@ Students must maintain reasonable conduct. Misconduct inside or outside campus m
 - Unauthorized audio/video recording or photography of learning activities.
 - Possessing/using weapons (knives, iron chains, rods, sticks, explosives, firearms) on premises.
 - Ragging — teasing, practical jokes, rough/rude treatment causing annoyance, hardship, harm, fear, shame, embarrassment or danger to a fresher.
-- Criminal conduct (a) on premises, (b) affecting community members, (c) damaging college's good name, or (d) constituting misconduct under the code.
+- Criminal conduct on premises, affecting community members, damaging college's good name, or constituting misconduct under the code.
 - Any act of moral code violation.
 - Failure to disclose name/details to a college officer when reasonable.
 - Failure to comply with previously imposed warnings.
@@ -94,31 +94,235 @@ Any student charged with misconduct may be suspended by the Principal until the 
 
 ## AMENDMENT AND ANNULMENT OF RULES
 The Principal, in consultation with the College Council, is competent to amend rules or regulations except those related to admission policy, in the interest of the institution.
+
+---
+
+# PART B — KPK GOVERNMENT COLLEGES ADMISSION POLICY (HED KPK, Authoritative)
+Source: Higher Education, Archives & Libraries Department (HED), Government of Khyber Pakhtunkhwa.
+Official Portal: https://admission.hed.gkp.pk | https://hed.gkp.pk
+Last Updated: 2025-2026 Academic Year.
+
+## 1. OVERVIEW
+HED KPK runs a fully **Online Admission System** for all Government Colleges (Male & Female) at https://admission.hed.gkp.pk. All merit lists are public for transparency.
+Programs covered:
+- Intermediate Part-I (11th / FA / FSc / ICS / D.Com / Pre-Engineering / Pre-Medical / Computer Science / Humanities)
+- Associate Degree (AD) — 1st Semester (2-year, being phased out; closed for new admissions since Oct 2023)
+- BS (Bachelor of Studies) — 1st Semester (4-year)
+- BS — 5th Semester (lateral entry from AD)
+
+## 2. JURISDICTION & OBJECTIVES
+Applies to all General Male and Female Government Colleges of KPK. Objectives: fair access, merit, and transparency.
+
+## 3. AGE LIMITS (calculated on closing date of application)
+**Male candidates — Maximum age:**
+- Intermediate Part-I: **19 years**
+- BS 1st Semester / AD 1st Semester: **22 years**
+- BS 5th Semester (lateral entry): **25 years**
+
+**Female candidates:** NO upper age limit, except Sports Quota (same as male).
+
+**Minimum age:** Not formally stated. Practical: ~15–16 yrs for Intermediate, ~17–18 yrs for BS 1st.
+
+**Age Relaxation:** Granted by the Principal (per affiliating Board/University criteria). Apply with valid reasons before the interview. NOT applicable for Sports Quota (any gender).
+
+## 4. ELIGIBILITY
+General rules:
+1. No admission offered in any faculty/discipline with fewer than **20 applications**.
+2. If <50% of allocated seats in a BS/AD discipline are filled, students may be guided to other disciplines (without compromising merit).
+3. If a BS/AD program drops below **15 students at any stage**, students migrate to another college in the same/nearby district.
+4. Students who **failed in one or more subjects** in the preceding exam are NOT eligible for Intermediate Part-I, AD 1st Sem, or BS 1st Sem.
+
+Per program:
+- **Intermediate (Part-I):** Passed SSC (Matric) from a recognized board, minimum marks per BISE policy.
+- **BS / AD 1st Sem:** Passed HSSC (Intermediate / FA / FSc or equivalent), generally **minimum 60%** in HSSC (varies by university/discipline).
+- **BS 5th Sem (Lateral Entry):** Completed AD from a recognized institution; admission on open merit subject to vacant seats and affiliating university criteria.
+
+Special cases:
+- **Hope Certificate / awaiting result:** May apply with tentative marks + Hope Certificate; admission is **provisional**, canceled if final marks fall short.
+- **O/A Level / Foreign:** Must have **IBCC/HEC equivalency certificate**.
+- **Gap year:** Must submit affidavit (no prior admission OR previous one canceled).
+- **Supplementary exam pass (immediately preceding year):** NOT eligible the same academic year.
+
+## 5. DOCUMENTS REQUIRED
+SSC Certificate; HSSC Certificate (BS/AD); Detail Marks Sheet / Provisional Cert; Domicile; Own/Father's CNIC or Form-B; Character Certificate (last institution OR Gazetted Officer if private); Colored Photographs; Quota Eligibility Certificate (Sports/Disability/etc.); Original Migration Certificate Board-to-Board (O/A Level / different board); Original Migration Certificate Board-to-University (BS/AD); Verified Copy of HSSC DMC; Affidavit of Non-involvement in Politics (already in online system); Hafiz-e-Quran Certificate (if claiming bonus); Disability Certificate (Special Person Quota); NOC + Afghan Commissionerate Recommendation + Police Clearance (Afghan Quota).
+
+## 6. HOW TO APPLY (STEP-BY-STEP)
+1. Visit https://admission.hed.gkp.pk
+2. Create account with CNIC (or Form-B for minors); family member's phone is allowed.
+3. Fill academic & personal information.
+4. Select college(s) & program(s) — multiple applications allowed.
+5. Pay application processing fee via **JazzCash Retailer or App**.
+6. Submit application online (and hard copies at interview).
+7. Track at https://admission.hed.gkp.pk/application_status.php; merit lists posted on college notice board + website.
+8. Appear for interview with parent/guardian + originals.
+9. Confirm admission (pay admission fee within timeframe) — failure forfeits the seat to next on merit.
+10. Attend classes — failure to attend within **10 days** cancels admission.
+
+## 7. SEAT ALLOCATION & QUOTA SYSTEM
+
+**A. Intermediate (General & Commerce):**
+- Open Merit 40% | Local Quota (Jurisdictional Area) 45% | HED Employee Quota 6% | Sports 5% | Special Person/Disabled 2% | Minority 2% | Afghan Quota: 1 seat per faculty (over & above)
+
+**B. BS & AD 1st Semester (Degree Colleges):**
+- Open Merit 43% | District Local Quota 42% | HED College Employee 6% | Sports 5% | Special Person/Disabled 2% | Minority 2% | Afghan: 1 seat per faculty
+- Out of 40 seats: 17/17/2/2/1/1; Out of 50 seats: 22/21/3/2/1/1.
+
+**C. BS 4-Year (Commerce Colleges):**
+- District (same college) 60% | Open Commerce (D.Com/DBA) 16% | Open (FA/FSc) 11% | Sports 4% | Army Sons 2% | CE & MS Employees 3% | Special Person 2% | Minority 2%
+
+**D. BS 5th Semester:** Open Merit only, subject to vacant seats and university criteria.
+
+**E. Female at Male Colleges (Co-Ed BS):** Allowed only for BS disciplines unavailable at any female college in the same jurisdictional area (per JMC). Apply under Open Merit, Employee, Special Person, Minority, Afghan quotas.
+
+**Local definitions:**
+- *Intermediate Local (45%)*: Domiciled in jurisdictional area (UC/VC/NC) + matching CNIC, OR child/spouse/ward of a Federal/Provincial Govt employee serving in the district.
+- *BS/AD District Local (42%)*: Domiciled in the district + matching CNIC, OR ward/spouse/child of a Govt employee serving in that district.
+- Vacant quota seats (except Afghan) revert to Open Merit.
+
+## 8. FEE STRUCTURE
+Government college fees are significantly lower than private institutions/universities. Components:
+- Application Processing Fee (JazzCash, online)
+- Admission Fee (one-time, on confirmation)
+- Tuition Fee (semester/annual, very nominal)
+- Board/University Registration Fee
+- Security Deposit (refundable, conditions apply)
+- College Pupil Fund (per CPF Guidelines 2023)
+Exact amounts vary per college/program — see https://admission.hed.gkp.pk/colleges.php.
+
+**Refund Policy:**
+- Cancellation BEFORE board/university registration fee paid → **Full refund**
+- AFTER registration fee paid → Refund of **private fund + security only**
+- AFTER one month of classes → Refund of **security only**
+- No refund request within **3 months** → **All fees forfeited** (incl. security)
+- Special/Disabled students: Fee waiver per HED directives.
+
+## 9. MERIT DETERMINATION
+1. Aggregate basis: Intermediate ← SSC%; BS/AD 1st ← HSSC%; BS 5th ← AD 4th-Sem CGPA/Marks.
+2. **Hafiz-e-Quran bonus: +20 marks** (Inter Part-I, AD 1st, BS 1st) — requires valid certificate + committee test BEFORE 1st provisional merit list.
+3. **Gap Year penalty: −5 marks per year/session** (no deduction for supplementary pass of immediately preceding year).
+4. **Tie-break:** older candidate first; if still tied, earlier applicant first.
+5. **Meritorious seats:** Principal may reserve 10% of seats for 15 days for top provincial-level students who missed admission for unavoidable reasons.
+
+**Sports Merit (Total 100 = Trial 65 + Certificate 35):** SSC 10 / HSSC or Inter-District/Zonal 15 / District 20 / Regional or BISE Inter-School-College or DHE Regional 25 / Inter-Board or Provincial 30 / BISE or other National 35. Only the **highest** certificate is counted. Sports-quota students must sign undertaking to play for college team — failure cancels admission.
+
+Merit lists posted on college notice board AND https://admission.hed.gkp.pk/merit_list.php; separate list per quota.
+
+## 10. UNIFORM POLICY
+KPK Government Colleges follow a dress code aligned with local cultural and Islamic values (no single province-wide uniform).
+- **Male:** Shalwar Kameez (preferred white/light for formal days). No jeans, shorts, tight clothing.
+- **Female:** Abaya (typically black) + Dupatta/Scarf is mandatory in most colleges; Shalwar Kameez + Dupatta also accepted; strict purdah enforced.
+- Modest Islamic dress; decent footwear; no flashy clothing. Individual colleges may add specifics.
+
+## 11. SCHOLARSHIPS & FINANCIAL ASSISTANCE
+- Need-based: per College Pupil Fund Guidelines 2023.
+- Merit-based: top performers, also under CPF 2023.
+- Fee waivers for Special/Disabled per HED directives.
+- KPTIB / Udacity Program: fully-funded Nanodegree scholarships for KPK youth.
+- HED Employee Children Scholarship (annually announced).
+
+## 12. CANCELLATION, REFUND & RE-ADMISSION
+**Cancellation grounds:** Incorrect form info; failure to attend classes within 10 days; agitator/expelled history; political activity; sports-quota student not playing; <50% seats filled in a discipline (full refund); on student's own request within timeframe.
+**Absenteeism:** 6 consecutive days absent without written application → **struck off**.
+**Re-admission:** Apply in writing to Principal within 15 days of notification; pay re-admission fee + dues. Second re-admission in same session generally NOT allowed (genuine cases → Regional Director / Directorate General of Higher Education).
+**Subject change:** Faculty change NOT allowed. Subject change permitted only in Intermediate Arts/Humanities, within 21 days of class commencement.
+**Migration:** Allowed by both Principals if (1) >16 km away, (2) legitimate reason (parent/spouse transfer, relocation, family disputes, marriage with proof), (3) marks ≥ minimum of regular student, (4) within BISE/University deadline.
+
+## 13. GRIEVANCE REDRESSAL
+Complaints to Director Admissions / Admission Committee / Principal. Rechecking of merit allowed; quota change requests reviewed. Unresolved disputes referred in writing to Director Higher Education, KPK (final decision).
+
+## 14. PROGRAMS OFFERED
+- **Intermediate:** Pre-Medical, Pre-Engineering, ICS, FA, FSc, D.Com.
+- **BS (4-year):** Sciences (Physics, Chemistry, Biology, Math, CS, etc.), Arts/Social Sciences (Economics, Pol Sci, Psychology, Urdu, English, etc.), Commerce/Business, Health & Physical Education, Islamic Studies. Disciplines vary by college.
+- **Commerce Colleges:** BS for D.Com/DBA grads; open seats for FA/FSc.
+
+## 15. KEY OFFICIAL LINKS
+- Online Admission Portal: https://admission.hed.gkp.pk
+- HED KPK Official: https://hed.gkp.pk
+- Admission Rules: https://admission.hed.gkp.pk/admission.php
+- Track Application: https://admission.hed.gkp.pk/application_status.php
+- Merit Lists: https://admission.hed.gkp.pk/merit_list.php
+- List of All Colleges: https://admission.hed.gkp.pk/colleges.php
+- Downloads (Policy PDFs): https://admission.hed.gkp.pk/dhe_downloads.php
+- FAQs: https://admission.hed.gkp.pk/faqs.php
+- Feedback / Contact: https://admission.hed.gkp.pk/contact.php
+- User Guide: https://admission.hed.gkp.pk/help_guide.php
+- HEMIS Cell: https://admission.hed.gkp.pk/hemis_cell.php
+
+## 16. GLOSSARY
+HED = Higher Education, Archives & Libraries Department, KPK · BISE = Board of Intermediate & Secondary Education · HEMIS = Higher Education Management Information System · JMC = Joint Management Council · BS = Bachelor of Studies (4-yr) · AD = Associate Degree (2-yr, phased out) · IBCC = Inter-Board Committee of Chairmen · Hafiz-e-Quran = one who has memorized the entire Quran · Migration Certificate = required for cross-board transfer · Provisional Admission = temporary, pending result verification.
+
+---
+
+# PART C — KPK GOVERNMENT COLLEGES (Reference Directory)
+KPK has 35 administrative districts. Government colleges fall under HED KPK and are listed at https://admission.hed.gkp.pk/colleges.php. Major and well-known institutions include (non-exhaustive — for the complete current list, direct the student to the official portal or use web_search):
+
+**Peshawar:** Government College Peshawar (one of the oldest, est. 1913); Islamia College Peshawar (chartered university status, est. 1913); Edwardes College Peshawar (1900); Government Postgraduate College Peshawar; Government College of Management Sciences Peshawar; Jinnah College for Women (Univ. of Peshawar); Frontier College for Women Peshawar; Government Girls Degree College Hayatabad; Government Degree College Mathra.
+
+**Mardan:** Government Postgraduate College Mardan (est. 1953); Government Girls Degree College Mardan; Government Degree College Takht Bhai; Government Degree College Katlang.
+
+**Abbottabad:** Government Postgraduate College Abbottabad (est. 1905); Government Girls Postgraduate College Abbottabad; Government Degree College Havelian.
+
+**Swat:** Jahanzeb College Saidu Sharif (est. 1952); Government Girls Degree College Saidu Sharif; Government Degree College Mingora; Government Degree College Matta.
+
+**Kohat:** Government Postgraduate College Kohat; Government Girls Degree College Kohat.
+
+**Bannu:** Government Postgraduate College Bannu (est. 1954); Government Girls Degree College Bannu.
+
+**Dera Ismail Khan (D.I. Khan):** Government Postgraduate College D.I. Khan; Government Girls Degree College D.I. Khan.
+
+**Hangu:** Government Degree College Hangu; Government Girls Degree College Hangu.
+
+**Charsadda:** Government Postgraduate College Charsadda; Government Girls Degree College Charsadda.
+
+**Nowshera:** Government Postgraduate College Nowshera; Government Degree College Pabbi; Government Girls Degree College Nowshera.
+
+**Swabi:** Government Postgraduate College Swabi; Government Girls Degree College Swabi; Government Degree College Topi.
+
+**Mansehra:** Government Postgraduate College Mansehra; Government Girls Degree College Mansehra; Government Degree College Balakot.
+
+**Haripur:** Government Postgraduate College Haripur; Government Girls Degree College Haripur.
+
+**Battagram, Torghar, Kohistan (Upper/Lower/Kolai-Pallas):** District-level Government Degree Colleges (Boys & Girls).
+
+**Lower Dir / Upper Dir / Chitral (Upper/Lower):** Government Degree College Timergara; Government Degree College Dir; Government Degree College Chitral; Government Girls Degree Colleges in each district HQ.
+
+**Buner, Shangla, Malakand:** Government Postgraduate College Buner; Government Degree College Alpuri (Shangla); Government Degree College Batkhela (Malakand); Girls colleges in each.
+
+**Karak, Lakki Marwat, Tank, South Waziristan, North Waziristan:** Government Postgraduate College Karak; Government Postgraduate College Lakki Marwat; Government Degree College Tank; Government Degree Colleges in Wana and Miranshah; Girls colleges where established.
+
+**Newly Merged Districts (former FATA):** Bajaur, Mohmand, Khyber, Orakzai, Kurram + Waziristan agencies — each now has at least one Government Degree College for boys and (where established) for girls under HED KPK.
+
+When asked about a SPECIFIC college (current principal, current programs offered, current fee, current admission deadline, contact number, hostel availability, address) — use the **web_search** tool against admission.hed.gkp.pk or hed.gkp.pk and the college's own page to fetch up-to-date details, then cite the source.
 `;
 
-const SYSTEM_PROMPT = `You are the official College Policy Assistant — a friendly, professional AI chatbot for college students. You are also a capable general-purpose assistant (like ChatGPT) for any other questions.
+const SYSTEM_PROMPT = `You are the official **KPK Government College Policy Assistant** — a friendly, professional AI chatbot trained on the Higher Education Department (HED) KPK admission policy and the Government College Code of Conduct. You are also a capable general-purpose assistant (like ChatGPT) for any other questions.
 
 You have THREE sources of knowledge, used in this strict order:
-1. **OFFICIAL COLLEGE POLICIES** (provided below) — the authoritative source for anything about the college's Code of Conduct, Misconduct, Disciplinary Authorities, Penalties, Suspension, and Amendment rules.
-2. **Your own AI knowledge** — for general/educational/advanced questions (study help, math, science, programming, history, definitions, career advice, writing help, explanations, reasoning, etc.) answer directly from your own knowledge, just like ChatGPT would. Do NOT call web search for things you already know well.
-3. **Live web search (web_search tool, powered by Google)** — ONLY use this when:
-   - The question needs fresh/recent info (news, current events, prices, latest releases, dates after your training).
-   - The question is about a specific real-world entity, website, person, scholarship, admission deadline, or local Pakistani info you are not certain about.
-   - You are unsure of the answer and want to verify before responding.
-   When you use web search, search MULTIPLE sites — issue 2-4 different queries (broad + specific + alternative phrasing + site-specific if useful) to gather diverse sources before answering.
+1. **OFFICIAL KNOWLEDGE BASE (provided below)** — the authoritative source for:
+   - Code of Conduct, Misconduct, Disciplinary Authorities, Penalties, Suspension, Amendments (Part A)
+   - HED KPK Admission Policy: age limits, eligibility, documents, how to apply, quotas, fees, merit, uniform, scholarships, cancellation, migration, grievance, programs, official links (Part B)
+   - Reference directory of KPK government colleges by district (Part C)
+2. **Your own AI knowledge** — for general/educational/advanced questions (study help, math, science, programming, history, definitions, career advice, writing help, explanations, reasoning, etc.) answer directly from your own knowledge, like ChatGPT would. Do NOT call web search for things you already know well.
+3. **Live web search (web_search tool — Google)** — ONLY use this when:
+   - The user asks about a SPECIFIC KPK college's current details NOT in Part C (current principal, exact fee, current deadline, contact number, programs offered this year, hostel availability, address).
+   - Fresh / time-sensitive info is needed (current admission dates, current merit list, current scholarship deadlines, news, prices).
+   - You are unsure of the answer and want to verify.
+   When you search, issue **2-4 different queries** (broad + specific + alternative phrasing + \`site:admission.hed.gkp.pk\` or \`site:hed.gkp.pk\` filter) to gather diverse sources. Always prefer official HED KPK sources.
 
 Decision rules:
-- College rules / conduct / penalties → answer ONLY from the policies and cite the section (e.g., "Code of Conduct rule 15", "Range of Penalties (ii)"). Never invent rules.
-- General knowledge or reasoning question → answer from your own AI knowledge first. Only search if uncertain or freshness is required.
-- Mixed → answer the policy part from policies, the rest from your knowledge or search as needed.
+- College conduct / penalties / admission rules / quotas / fees / merit / age limits / documents / how to apply → answer from Parts A & B and cite the section (e.g., "Code of Conduct rule 15", "Admission Policy §7 — Quotas", "Range of Penalties (ii)"). Never invent rules.
+- "What colleges are in district X?" → answer from Part C; if user asks for the COMPLETE current list, point them to https://admission.hed.gkp.pk/colleges.php and offer to web_search.
+- General knowledge / reasoning question → answer from your own AI knowledge first.
+- Specific/current/local detail → web_search, cite sources.
 
 Style:
 - Polite, supportive, encouraging — like a helpful senior student or counselor.
-- Clean Markdown formatting (headings, bullets, **bold** for rule names).
+- Clean Markdown (headings, bullets, **bold** for rule names, tables when comparing quotas/fees).
 - Concise unless the user asks for detail.
 - When you used a web search, briefly note "Based on a web search:" and include source links.
+- For admission queries, end with the relevant official link from Part B §15 when useful.
 
-Below are the OFFICIAL POLICIES — treat them as the single source of truth for college-rule-related questions:
+Below is the OFFICIAL KNOWLEDGE BASE — treat it as the single source of truth for college-rule and KPK-admission questions:
 
 ${POLICIES}`;
 
