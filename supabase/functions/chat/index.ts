@@ -420,6 +420,8 @@ Deno.serve(async (req) => {
         messages: convo,
         tools: TOOLS,
         stream: false,
+        max_tokens: 2048,
+        temperature: 0.7,
       }, LOVABLE_API_KEY);
 
       if (!resp.ok) {
