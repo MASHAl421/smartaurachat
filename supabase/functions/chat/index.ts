@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
 
     // Tool-call loop (max 3 rounds): non-streaming until model is done with tools, then stream the final answer.
-    for (let round = 0; round < 3; round++) {
+    for (let round = 0; round < 5; round++) {
       const resp = await callGateway({
         model: "google/gemini-2.5-flash",
         messages: convo,
