@@ -109,9 +109,28 @@ const Index = () => {
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let assistantText = "";
-      let done = false;
 
+      // ── Smooth typewriter: server fills `fullText`, RAF loop reveals chars ──
+      let fullText = "";
+      let revealed = 0;
+      let streamDone = false;
+
+      const tick = () => {
+        const remaining = fullText.length - revealed;
+        if (remaining > 0) {
+          // Reveal faster if we're falling behind, slower if close to live edge.
+          // Aim for ~60fps with adaptive char count.
+          const step = Math.max(1, Math.ceil(remaining / 18));
+          revealed = Math.min(fullText.length, revealed + step);
+          setMessages([...newMessages, { role: "assistant", content: fullText.slice(0, revealed) }]);
+        }
+        if (!streamDone || revealed < fullText.length) {
+          requestAnimationFrame(tick);
+        }
+      };
+      requestAnimationFrame(tick);
+
+      let done = false;
       while (!done) {
         const { done: d, value } = await reader.read();
         if (d) break;
@@ -127,17 +146,25 @@ const Index = () => {
           try {
             const parsed = JSON.parse(json);
             const delta = parsed.choices?.[0]?.delta?.content;
-            if (delta) {
-              assistantText += delta;
-              setMessages([...newMessages, { role: "assistant", content: assistantText }]);
-            }
+            if (delta) fullText += delta;
           } catch {
             buffer = line + "\n" + buffer;
             break;
           }
         }
       }
+      streamDone = true;
 
+      // Wait for typewriter to finish revealing before persisting
+      await new Promise<void>((resolve) => {
+        const check = () => {
+          if (revealed >= fullText.length) resolve();
+          else requestAnimationFrame(check);
+        };
+        check();
+      });
+
+      const assistantText = fullText;
       // Persist assistant message
       if (assistantText) {
         await supabase.from("messages").insert({
