@@ -166,7 +166,7 @@ const TOOLS = [{
   type: "function",
   function: {
     name: "web_search",
-    description: "Search the live web for up-to-date information. Use this whenever the user asks something NOT covered in the official college policies (e.g., study tips, current events, definitions, careers, scholarships, technology, news, general knowledge).",
+    description: "Search the live web (Google) for fresh, external, or uncertain information. Do NOT use for general knowledge you already know — answer those from your own knowledge first. Use ONLY when: (a) the user asks for recent/current info, (b) you need to verify a specific real-world fact, deadline, price, name, or local detail, or (c) the question is outside your training. When you do search, call this tool 2-4 times with different queries (broad, specific, alternative phrasings, or `site:` filters) to gather multiple sources before answering.",
     parameters: {
       type: "object",
       properties: {
