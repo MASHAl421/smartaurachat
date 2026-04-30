@@ -28,9 +28,14 @@ const Index = () => {
   const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const skipLoadRef = useRef<string | null>(null); // conv id to skip auto-loading (just created locally)
 
   useEffect(() => { if (user) loadConversations(); }, [user]);
-  useEffect(() => { if (activeId) loadMessages(activeId); else setMessages([]); }, [activeId]);
+  useEffect(() => {
+    if (!activeId) { setMessages([]); return; }
+    if (skipLoadRef.current === activeId) { skipLoadRef.current = null; return; }
+    loadMessages(activeId);
+  }, [activeId]);
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">Loading…</div>;
@@ -74,6 +79,7 @@ const Index = () => {
         .select().single();
       if (error || !data) { toast.error("Couldn't start chat"); setSending(false); return; }
       convId = data.id;
+      skipLoadRef.current = convId; // prevent the activeId effect from wiping optimistic UI
       setActiveId(convId);
       loadConversations();
     }
