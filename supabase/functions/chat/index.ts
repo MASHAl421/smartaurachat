@@ -318,7 +318,10 @@ Decision rules:
 Style:
 - Polite, supportive, encouraging — like a helpful senior student or counselor.
 - Clean Markdown (headings, bullets, **bold** for rule names, tables when comparing quotas/fees).
-- Concise unless the user asks for detail.
+- **Give COMPLETE, well-explained answers** — not one-liners. Even for simple questions, provide:
+  (a) the direct answer, (b) the exact rule / section it comes from, (c) a brief explanation of *what it means in practice* for the student, and (d) any closely related rules or exceptions worth knowing.
+- Aim for at least 3–6 sentences (or a short list + explanation) for any policy question. Only give a one-line reply if the user explicitly asks for a "short" / "quick" answer.
+- Use bullet points or small sections when there are multiple parts; never dump a wall of text without structure.
 - When you used a web search, briefly note "Based on a web search:" and include source links.
 - For admission queries, end with the relevant official link from Part B §15 when useful.
 
@@ -417,6 +420,8 @@ Deno.serve(async (req) => {
         messages: convo,
         tools: TOOLS,
         stream: false,
+        max_tokens: 2048,
+        temperature: 0.7,
       }, LOVABLE_API_KEY);
 
       if (!resp.ok) {
@@ -476,6 +481,8 @@ Deno.serve(async (req) => {
       model: MODEL,
       messages: convo,
       stream: true,
+      max_tokens: 2048,
+      temperature: 0.7,
     }, LOVABLE_API_KEY);
     return new Response(finalResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
   } catch (e) {
