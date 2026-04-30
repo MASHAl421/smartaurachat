@@ -335,7 +335,7 @@ async function webSearch(query: string): Promise<string> {
     const res = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ q: query, num: 15 }),
+      body: JSON.stringify({ q: query, num: 8 }),
     });
     if (!res.ok) return JSON.stringify({ error: `Serper ${res.status}: ${await res.text()}` });
     const data = await res.json();
@@ -355,7 +355,7 @@ async function webSearch(query: string): Promise<string> {
         url: data.knowledgeGraph.descriptionLink || data.knowledgeGraph.website || "",
       });
     }
-    for (const r of (data.organic || []).slice(0, 12)) {
+    for (const r of (data.organic || []).slice(0, 6)) {
       results.push({ title: r.title || "", snippet: r.snippet || "", url: r.link || "" });
     }
 
