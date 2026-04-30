@@ -151,7 +151,7 @@ async function webSearch(query: string): Promise<string> {
         url: data.knowledgeGraph.descriptionLink || data.knowledgeGraph.website || "",
       });
     }
-    for (const r of (data.organic || []).slice(0, 6)) {
+    for (const r of (data.organic || []).slice(0, 12)) {
       results.push({ title: r.title || "", snippet: r.snippet || "", url: r.link || "" });
     }
 
