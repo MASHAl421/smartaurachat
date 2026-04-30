@@ -118,6 +118,67 @@ Below are the OFFICIAL POLICIES — treat them as the single source of truth for
 
 ${POLICIES}`;
 
+// --- Web search tool (DuckDuckGo Instant Answer + HTML scrape, no API key) ---
+async function webSearch(query: string): Promise<string> {
+  try {
+    // Try DuckDuckGo instant answer first
+    const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+    const ddg = await ddgRes.json().catch(() => ({}));
+
+    const results: { title: string; snippet: string; url: string }[] = [];
+    if (ddg.AbstractText) {
+      results.push({ title: ddg.Heading || query, snippet: ddg.AbstractText, url: ddg.AbstractURL || "" });
+    }
+    for (const r of (ddg.RelatedTopics || []).slice(0, 5)) {
+      if (r.Text && r.FirstURL) results.push({ title: r.Text.split(" - ")[0], snippet: r.Text, url: r.FirstURL });
+    }
+
+    // Fallback: scrape DuckDuckGo HTML if instant answer empty
+    if (results.length === 0) {
+      const htmlRes = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; CollegeBot/1.0)" },
+      });
+      const html = await htmlRes.text();
+      const matches = [...html.matchAll(/<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>[\s\S]*?<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g)].slice(0, 6);
+      for (const m of matches) {
+        const url = decodeURIComponent(m[1].replace(/^.*uddg=/, "").split("&")[0]);
+        const title = m[2].replace(/<[^>]+>/g, "").trim();
+        const snippet = m[3].replace(/<[^>]+>/g, "").trim();
+        results.push({ title, snippet, url });
+      }
+    }
+
+    if (results.length === 0) return JSON.stringify({ results: [], note: "No results found." });
+    return JSON.stringify({ results: results.slice(0, 6) });
+  } catch (e) {
+    return JSON.stringify({ error: e instanceof Error ? e.message : "search failed" });
+  }
+}
+
+const TOOLS = [{
+  type: "function",
+  function: {
+    name: "web_search",
+    description: "Search the live web for up-to-date information. Use this whenever the user asks something NOT covered in the official college policies (e.g., study tips, current events, definitions, careers, scholarships, technology, news, general knowledge).",
+    parameters: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "The search query, in English, focused and specific." },
+      },
+      required: ["query"],
+      additionalProperties: false,
+    },
+  },
+}];
+
+async function callGateway(body: unknown, apiKey: string) {
+  return fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -126,41 +187,72 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
-        stream: true,
-        tools: [{ google_search: {} }],
-      }),
-    });
+    const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit reached. Please try again in a moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+    // Tool-call loop (max 3 rounds): non-streaming until model is done with tools, then stream the final answer.
+    for (let round = 0; round < 3; round++) {
+      const resp = await callGateway({
+        model: "google/gemini-2.5-flash",
+        messages: convo,
+        tools: TOOLS,
+        stream: false,
+      }, LOVABLE_API_KEY);
+
+      if (!resp.ok) {
+        if (resp.status === 429) return new Response(JSON.stringify({ error: "Rate limit reached. Please try again in a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        if (resp.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits in Lovable workspace settings." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        const t = await resp.text();
+        console.error("AI gateway error:", resp.status, t);
+        return new Response(JSON.stringify({ error: "AI gateway error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits in Lovable workspace settings." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+
+      const data = await resp.json();
+      const msg = data.choices?.[0]?.message;
+      if (!msg) throw new Error("Empty response from gateway");
+
+      const toolCalls = msg.tool_calls || [];
+      if (toolCalls.length === 0) {
+        // No tools needed → stream a final pass for nicer UX
+        const finalResp = await callGateway({
+          model: "google/gemini-2.5-flash",
+          messages: convo,
+          stream: true,
+        }, LOVABLE_API_KEY);
+        return new Response(finalResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
       }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+
+      // Execute tools
+      convo.push(msg);
+      for (const call of toolCalls) {
+        let result = "";
+        if (call.function?.name === "web_search") {
+          try {
+            const args = JSON.parse(call.function.arguments || "{}");
+            result = await webSearch(args.query || "");
+          } catch (e) {
+            result = JSON.stringify({ error: e instanceof Error ? e.message : "tool error" });
+          }
+        } else {
+          result = JSON.stringify({ error: `unknown tool: ${call.function?.name}` });
+        }
+        convo.push({ role: "tool", tool_call_id: call.id, content: result });
+      }
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    // Safety: if we exit the loop, ask for a final non-tool answer streamed
+    const finalResp = await callGateway({
+      model: "google/gemini-2.5-flash",
+      messages: convo,
+      stream: true,
+    }, LOVABLE_API_KEY);
+    return new Response(finalResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+  } catch (e) {
+    console.error("chat error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+  }
+});
   } catch (e) {
     console.error("chat error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
