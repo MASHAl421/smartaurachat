@@ -118,38 +118,41 @@ Below are the OFFICIAL POLICIES — treat them as the single source of truth for
 
 ${POLICIES}`;
 
-// --- Web search tool (DuckDuckGo Instant Answer + HTML scrape, no API key) ---
+// --- Web search tool (Serper.dev — Google results) ---
 async function webSearch(query: string): Promise<string> {
   try {
-    // Try DuckDuckGo instant answer first
-    const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
-    const ddg = await ddgRes.json().catch(() => ({}));
+    const SERPER_API_KEY = Deno.env.get("SERPER_API_KEY");
+    if (!SERPER_API_KEY) return JSON.stringify({ error: "SERPER_API_KEY missing" });
+
+    const res = await fetch("https://google.serper.dev/search", {
+      method: "POST",
+      headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ q: query, num: 8 }),
+    });
+    if (!res.ok) return JSON.stringify({ error: `Serper ${res.status}: ${await res.text()}` });
+    const data = await res.json();
 
     const results: { title: string; snippet: string; url: string }[] = [];
-    if (ddg.AbstractText) {
-      results.push({ title: ddg.Heading || query, snippet: ddg.AbstractText, url: ddg.AbstractURL || "" });
-    }
-    for (const r of (ddg.RelatedTopics || []).slice(0, 5)) {
-      if (r.Text && r.FirstURL) results.push({ title: r.Text.split(" - ")[0], snippet: r.Text, url: r.FirstURL });
-    }
-
-    // Fallback: scrape DuckDuckGo HTML if instant answer empty
-    if (results.length === 0) {
-      const htmlRes = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; CollegeBot/1.0)" },
+    if (data.answerBox) {
+      results.push({
+        title: data.answerBox.title || query,
+        snippet: data.answerBox.answer || data.answerBox.snippet || "",
+        url: data.answerBox.link || "",
       });
-      const html = await htmlRes.text();
-      const matches = [...html.matchAll(/<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>[\s\S]*?<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g)].slice(0, 6);
-      for (const m of matches) {
-        const url = decodeURIComponent(m[1].replace(/^.*uddg=/, "").split("&")[0]);
-        const title = m[2].replace(/<[^>]+>/g, "").trim();
-        const snippet = m[3].replace(/<[^>]+>/g, "").trim();
-        results.push({ title, snippet, url });
-      }
+    }
+    if (data.knowledgeGraph?.description) {
+      results.push({
+        title: data.knowledgeGraph.title || query,
+        snippet: data.knowledgeGraph.description,
+        url: data.knowledgeGraph.descriptionLink || data.knowledgeGraph.website || "",
+      });
+    }
+    for (const r of (data.organic || []).slice(0, 6)) {
+      results.push({ title: r.title || "", snippet: r.snippet || "", url: r.link || "" });
     }
 
     if (results.length === 0) return JSON.stringify({ results: [], note: "No results found." });
-    return JSON.stringify({ results: results.slice(0, 6) });
+    return JSON.stringify({ results });
   } catch (e) {
     return JSON.stringify({ error: e instanceof Error ? e.message : "search failed" });
   }
