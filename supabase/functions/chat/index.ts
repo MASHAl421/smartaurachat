@@ -335,7 +335,7 @@ async function webSearch(query: string): Promise<string> {
     const res = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ q: query, num: 15 }),
+      body: JSON.stringify({ q: query, num: 8 }),
     });
     if (!res.ok) return JSON.stringify({ error: `Serper ${res.status}: ${await res.text()}` });
     const data = await res.json();
@@ -355,7 +355,7 @@ async function webSearch(query: string): Promise<string> {
         url: data.knowledgeGraph.descriptionLink || data.knowledgeGraph.website || "",
       });
     }
-    for (const r of (data.organic || []).slice(0, 12)) {
+    for (const r of (data.organic || []).slice(0, 6)) {
       results.push({ title: r.title || "", snippet: r.snippet || "", url: r.link || "" });
     }
 
@@ -399,11 +399,13 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
+    const MODEL = "google/gemini-2.5-flash-lite"; // fast default
 
-    // Tool-call loop (max 3 rounds): non-streaming until model is done with tools, then stream the final answer.
-    for (let round = 0; round < 5; round++) {
+    // Tool-call loop (max 2 rounds). Non-streaming only when we need to inspect tool_calls;
+    // as soon as the model produces a final answer, stream it directly to the client.
+    for (let round = 0; round < 2; round++) {
       const resp = await callGateway({
-        model: "google/gemini-2.5-flash",
+        model: MODEL,
         messages: convo,
         tools: TOOLS,
         stream: false,
@@ -423,18 +425,28 @@ Deno.serve(async (req) => {
 
       const toolCalls = msg.tool_calls || [];
       if (toolCalls.length === 0) {
-        // No tools needed → stream a final pass for nicer UX
-        const finalResp = await callGateway({
-          model: "google/gemini-2.5-flash",
-          messages: convo,
-          stream: true,
-        }, LOVABLE_API_KEY);
-        return new Response(finalResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+        // Model already produced the final text — stream it as SSE so the UI can typewriter it.
+        const finalText: string = msg.content || "";
+        const stream = new ReadableStream({
+          start(controller) {
+            const enc = new TextEncoder();
+            // Chunk the text into ~12-char pieces for a smooth streaming feel
+            const CHUNK = 12;
+            for (let i = 0; i < finalText.length; i += CHUNK) {
+              const piece = finalText.slice(i, i + CHUNK);
+              const payload = JSON.stringify({ choices: [{ delta: { content: piece } }] });
+              controller.enqueue(enc.encode(`data: ${payload}\n\n`));
+            }
+            controller.enqueue(enc.encode(`data: [DONE]\n\n`));
+            controller.close();
+          },
+        });
+        return new Response(stream, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
       }
 
-      // Execute tools
+      // Execute tools in parallel
       convo.push(msg);
-      for (const call of toolCalls) {
+      const toolResults = await Promise.all(toolCalls.map(async (call: any) => {
         let result = "";
         if (call.function?.name === "web_search") {
           try {
@@ -446,13 +458,14 @@ Deno.serve(async (req) => {
         } else {
           result = JSON.stringify({ error: `unknown tool: ${call.function?.name}` });
         }
-        convo.push({ role: "tool", tool_call_id: call.id, content: result });
-      }
+        return { role: "tool", tool_call_id: call.id, content: result };
+      }));
+      convo.push(...toolResults);
     }
 
-    // Safety: if we exit the loop, ask for a final non-tool answer streamed
+    // After tool round(s): stream the final answer directly from the gateway.
     const finalResp = await callGateway({
-      model: "google/gemini-2.5-flash",
+      model: MODEL,
       messages: convo,
       stream: true,
     }, LOVABLE_API_KEY);
