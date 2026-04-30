@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, Send, GraduationCap, ScrollText, Scale, ShieldAlert } from "lucide-react";
+import { Menu, ArrowUp, Sparkles, ScrollText, Scale, ShieldAlert, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
@@ -171,37 +171,42 @@ const Index = () => {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 border-b border-border flex items-center px-4 gap-3 bg-card/80 backdrop-blur">
+      <main className="flex-1 flex flex-col min-w-0 relative bg-gradient-glow">
+        <header className="h-14 border-b border-border/60 flex items-center px-4 gap-3 bg-background/70 backdrop-blur-xl sticky top-0 z-10">
           <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-muted">
             <Menu className="h-5 w-5" />
           </button>
-          <h1 className="font-semibold text-foreground">College Policy Assistant</h1>
-          <span className="ml-auto text-xs text-muted-foreground hidden sm:inline">Powered by AI · Trained on official policies</span>
+          <h1 className="font-semibold text-foreground tracking-tight">College Policy Assistant</h1>
+          <span className="ml-auto text-xs text-muted-foreground hidden sm:flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            Online
+          </span>
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-5">
+          <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
             {messages.length === 0 ? (
-              <div className="text-center pt-8 sm:pt-16 animate-fade-in-up">
-                <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-hero shadow-elegant mb-6">
-                  <GraduationCap className="h-10 w-10 text-primary-foreground" />
+              <div className="text-center pt-8 sm:pt-20 animate-fade-in-up">
+                <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-hero animate-gradient shadow-elegant mb-7">
+                  <Sparkles className="h-8 w-8 text-primary-foreground" />
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">How can I help you today?</h2>
-                <p className="text-muted-foreground max-w-md mx-auto mb-10">
-                  Ask anything about the college Code of Conduct, penalties, hostel rules, or general college life.
+                <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
+                  <span className="text-gradient">Hello there.</span>
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-md mx-auto mb-12">
+                  How can I help you today?
                 </p>
                 <div className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
                   {SUGGESTIONS.map((s, i) => (
                     <button
                       key={i}
                       onClick={() => setInput(s.text)}
-                      className="text-left p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-soft transition-all flex items-start gap-3 group"
+                      className="text-left p-4 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 hover:shadow-elegant transition-all duration-200 flex items-start gap-3 group"
                     >
-                      <div className="h-9 w-9 rounded-lg bg-secondary group-hover:bg-primary/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
                         <s.icon className="h-4 w-4 text-primary" />
                       </div>
-                      <span className="text-sm text-foreground/90">{s.text}</span>
+                      <span className="text-sm text-foreground/90 leading-relaxed">{s.text}</span>
                     </button>
                   ))}
                 </div>
@@ -219,29 +224,29 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="border-t border-border bg-card/80 backdrop-blur p-3 sm:p-4">
+        <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-4 px-3 sm:px-4">
           <div className="max-w-3xl mx-auto">
-            <div className="relative flex items-end gap-2 bg-background border border-border rounded-2xl shadow-soft focus-within:border-primary/50 focus-within:shadow-elegant transition-all">
+            <div className="relative flex items-end gap-2 bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/50 focus-within:shadow-elegant transition-all px-2">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
-                placeholder="Ask about any college policy…"
+                placeholder="Ask Policy AI anything…"
                 disabled={sending}
                 rows={1}
-                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 py-3.5 pr-14"
+                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 py-4 pl-3 pr-14 text-[15px] placeholder:text-muted-foreground/70"
               />
               <Button
                 onClick={sendMessage}
                 disabled={!input.trim() || sending}
                 size="icon"
-                className="absolute right-2 bottom-2 h-9 w-9 rounded-xl bg-gradient-hero hover:opacity-90"
+                className="absolute right-2.5 bottom-2.5 h-9 w-9 rounded-full bg-gradient-hero animate-gradient hover:opacity-90 disabled:opacity-30 disabled:bg-muted disabled:bg-none shadow-soft"
               >
-                <Send className="h-4 w-4" />
+                <ArrowUp className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-[11px] text-muted-foreground text-center mt-2">
-              AI may occasionally make mistakes — verify important matters with college administration.
+            <p className="text-[11px] text-muted-foreground/80 text-center mt-2.5">
+              Policy AI may make mistakes — verify important matters with college administration.
             </p>
           </div>
         </div>
