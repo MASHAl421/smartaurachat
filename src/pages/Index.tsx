@@ -167,16 +167,17 @@ const Index = () => {
     const newMessages = [...baseMessages, userMsg];
     setMessages([...newMessages, { role: "assistant", content: "" }]);
 
-    // Scroll the new user message to the top of the viewport so the
-    // previous answer goes above and the new input + thinking indicator
-    // sits right under the header.
+    // Scroll the new user message just under the header so the previous
+    // answer goes above and the new input + thinking indicator stays
+    // comfortably in view (not jammed to the very top).
     requestAnimationFrame(() => {
       const container = scrollRef.current;
       if (!container) return;
       const userEls = container.querySelectorAll<HTMLElement>("[data-role='user']");
       const lastUser = userEls[userEls.length - 1];
       if (!lastUser) return;
-      const top = lastUser.offsetTop - 12; // small breathing room under header
+      const offset = 72; // breathing room below header
+      const top = Math.max(0, lastUser.offsetTop - offset);
       container.scrollTo({ top, behavior: "smooth" });
     });
 
