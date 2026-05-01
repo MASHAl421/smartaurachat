@@ -529,7 +529,7 @@ const Index = () => {
                 <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-44">
-                <DropdownMenuItem onClick={() => renameConversation(activeId)}>
+                <DropdownMenuItem onClick={() => openRename(activeId)}>
                   <Pencil className="h-4 w-4 mr-2" /> Rename
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => deleteConversation(activeId)} className="text-destructive focus:text-destructive">
