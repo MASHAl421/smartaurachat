@@ -325,6 +325,9 @@ const Index = () => {
           // Fire-and-forget: fetch follow-up suggestions
           fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
         }
+      } else if (aborted) {
+        // Stopped before any token arrived — remove the empty assistant placeholder
+        setMessages(newMessages);
       }
     } catch (err: any) {
       if (err?.name === "AbortError") {
