@@ -121,22 +121,41 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
     }, 950);
   };
 
-  const handleFeedback = (val: "up" | "down") => {
+  const handleFeedback = async (val: "up" | "down") => {
     const wasActive = feedback === val;
-    setFeedback(wasActive ? null : val);
-    if (wasActive) return;
-    if (val === "up") {
-      setLikeAnim(false);
-      requestAnimationFrame(() => setLikeAnim(true));
-      setTimeout(() => setLikeAnim(false), 600);
-    } else {
-      setDislikeAnim(false);
-      requestAnimationFrame(() => setDislikeAnim(true));
-      setTimeout(() => setDislikeAnim(false), 600);
+    const next = wasActive ? null : val;
+    setFeedback(next);
+    if (!wasActive) {
+      if (val === "up") {
+        setLikeAnim(false);
+        requestAnimationFrame(() => setLikeAnim(true));
+        setTimeout(() => setLikeAnim(false), 600);
+      } else {
+        setDislikeAnim(false);
+        requestAnimationFrame(() => setDislikeAnim(true));
+        setTimeout(() => setDislikeAnim(false), 600);
+      }
+      spawnParticles(val);
+      setBurst({ kind: val, key: Date.now() });
+      setTimeout(() => setBurst(null), 1000);
     }
-    spawnParticles(val);
-    setBurst({ kind: val, key: Date.now() });
-    setTimeout(() => setBurst(null), 1000);
+
+    if (!messageId) return;
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) return;
+      if (next === null) {
+        await supabase.from("message_feedback").delete().eq("message_id", messageId).eq("user_id", uid);
+      } else {
+        await supabase.from("message_feedback").upsert(
+          { message_id: messageId, user_id: uid, rating: next, updated_at: new Date().toISOString() },
+          { onConflict: "message_id,user_id" }
+        );
+      }
+    } catch {
+      // silent — UI feedback already shown
+    }
   };
 
   if (isUser) {
