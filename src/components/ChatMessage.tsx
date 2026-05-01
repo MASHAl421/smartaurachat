@@ -4,12 +4,15 @@ import { forwardRef, useEffect, useRef, useState } from "react";
 import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart, Volume2, Square } from "lucide-react";
 import { toast } from "sonner";
 import { ThinkingIndicator } from "./ThinkingIndicator";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   role: "user" | "assistant";
   content: string;
   streaming?: boolean;
   onRegenerate?: () => void;
+  messageId?: string;
+  initialFeedback?: "up" | "down" | null;
 }
 
 type Feedback = "up" | "down" | null;
@@ -35,15 +38,17 @@ const ActionButton = forwardRef<
 ));
 ActionButton.displayName = "ActionButton";
 
-export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) => {
+export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId, initialFeedback = null }: Props) => {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [feedback, setFeedback] = useState<Feedback>(initialFeedback);
   const [likeAnim, setLikeAnim] = useState(false);
   const [dislikeAnim, setDislikeAnim] = useState(false);
   const [burst, setBurst] = useState<{ kind: "up" | "down"; key: number } | null>(null);
   const [particles, setParticles] = useState<{ id: number; px: number; py: number; kind: "up" | "down" }[]>([]);
   const particleId = useRef(0);
+
+  useEffect(() => { setFeedback(initialFeedback); }, [initialFeedback, messageId]);
   const [speaking, setSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
