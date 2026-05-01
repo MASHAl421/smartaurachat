@@ -92,8 +92,6 @@ const Index = () => {
     }
     if (lastUserIdx === -1) return;
     const lastUser = messages[lastUserIdx];
-    // History up to and INCLUDING the user message we want to re-answer
-    const baseHistory = messages.slice(0, lastUserIdx + 1);
     const previousAnswer =
       messages[messages.length - 1]?.role === "assistant"
         ? messages[messages.length - 1].content
@@ -103,8 +101,9 @@ const Index = () => {
     if (lastAssistant?.role === "assistant" && lastAssistant.id) {
       await supabase.from("messages").delete().eq("id", lastAssistant.id);
     }
-    // Clear suggestions immediately and show thinking dots
+    // Immediately hide the old answer & show thinking dots
     setSuggestions([]);
+    setMessages([...messages.slice(0, lastUserIdx + 1), { role: "assistant", content: "" }]);
     await sendMessage({
       overrideText: lastUser.content,
       baseHistory: messages.slice(0, lastUserIdx), // exclude the user msg (sendMessage re-adds it)
