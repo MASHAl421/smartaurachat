@@ -295,15 +295,15 @@ KPK has 35 administrative districts. Government colleges fall under HED KPK and 
 When asked about a SPECIFIC college (current principal, current programs offered, current fee, current admission deadline, contact number, hostel availability, address) — use the **web_search** tool against admission.hed.gkp.pk or hed.gkp.pk and the college's own page to fetch up-to-date details, then cite the source.
 `;
 
-const SYSTEM_PROMPT = `You are the official **KPK Government College Policy Assistant** — a friendly, professional AI chatbot trained on the Higher Education Department (HED) KPK admission policy and the Government College Code of Conduct. You are also a capable general-purpose assistant (like ChatGPT) for any other questions.
+const SYSTEM_PROMPT = `You are **Aura Chat**, a friendly, professional educational assistant for KPK Government College policies and a capable general-purpose AI assistant for any other question.
 
 You have THREE sources of knowledge, used in this strict order:
 1. **OFFICIAL KNOWLEDGE BASE (provided below)** — the authoritative source for:
    - Code of Conduct, Misconduct, Disciplinary Authorities, Penalties, Suspension, Amendments (Part A)
    - HED KPK Admission Policy: age limits, eligibility, documents, how to apply, quotas, fees, merit, uniform, scholarships, cancellation, migration, grievance, programs, official links (Part B)
    - Reference directory of KPK government colleges by district (Part C)
-2. **Your own AI knowledge** — for general/educational/advanced questions (study help, math, science, programming, history, definitions, career advice, writing help, explanations, reasoning, etc.) answer directly from your own knowledge, like ChatGPT would. Do NOT call web search for things you already know well.
-3. **Live web search (web_search tool — Google)** — use this whenever:
+2. **Your own AI knowledge** — for general/educational/advanced questions (study help, math, science, programming, history, definitions, career advice, writing help, explanations, reasoning, etc.) answer directly from your own knowledge, like ChatGPT would. Do NOT limit yourself to KPK policy when the user asks a general question.
+3. **Live web search (Google results)** — use this whenever:
    - The answer is NOT in the policy knowledge base (Parts A/B/C) AND you are not fully confident from your own AI knowledge.
    - The user asks about a SPECIFIC KPK college's current details NOT in Part C (current principal, exact fee, current deadline, contact number, programs offered this year, hostel availability, address).
    - Fresh / time-sensitive info is needed (current admission dates, current merit list, current scholarship deadlines, news, prices, sports scores, current events).
@@ -311,7 +311,7 @@ You have THREE sources of knowledge, used in this strict order:
    - You are uncertain and want to verify before answering.
    When you search, issue **2-4 different queries** (broad + specific + alternative phrasing + \`site:\` filter when relevant) to gather diverse sources. Always prefer official sources for policy/admission topics.
 
-**Fallback chain for ANY user input:** policy knowledge base → your own AI knowledge → web_search. Never tell the user "I don't know" or "I can't find it" without first trying web_search.
+**Fallback chain for ANY user input:** policy knowledge base → your own AI knowledge → live web search. Never tell the user "I don't know" or "I can't find it" without first searching or giving the best useful answer available.
 
 Decision rules:
 - College conduct / penalties / admission rules / quotas / fees / merit / age limits / documents / how to apply → answer from Parts A & B and cite the section. Never invent rules.
@@ -381,6 +381,27 @@ async function webSearch(query: string): Promise<string> {
   }
 }
 
+function shouldForceSearch(input: string): boolean {
+  const text = input.toLowerCase();
+  if (!text.trim()) return false;
+
+  const freshOrSpecific = /\b(current|latest|today|now|deadline|merit list|admission date|contact|phone|address|location|where is|principal|hostel|website|programs?|fee|fees|news)\b/i;
+  const collegeAcronyms = /\b(gdc|gpgc|ggdc|ggc|gc|government\s+(degree|postgraduate|girls|college))\b/i;
+  const outsidePolicyPlaces = /\b(lahore|punjab|karachi|islamabad|quetta|sindh|balochistan|rawalpindi|faisalabad)\b/i;
+
+  return freshOrSpecific.test(text) || (collegeAcronyms.test(text) && /\b[a-z]{3,}\b/i.test(text)) || outsidePolicyPlaces.test(text);
+}
+
+function buildSearchQueries(input: string): string[] {
+  const clean = input.replace(/\s+/g, " ").trim();
+  return Array.from(new Set([
+    clean,
+    `${clean} official`,
+    `site:admission.hed.gkp.pk ${clean}`,
+    `site:hed.gkp.pk ${clean}`,
+  ])).slice(0, 4);
+}
+
 const TOOLS = [{
   type: "function",
   function: {
@@ -413,8 +434,19 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
+    const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
-    const MODEL = "google/gemini-2.5-flash-lite"; // fast default
+    const MODEL = "google/gemini-3-flash-preview";
+    const shouldSearchFirst = shouldForceSearch(latestUserMessage);
+
+    if (shouldSearchFirst) {
+      const searchQueries = buildSearchQueries(latestUserMessage);
+      const toolResults = await Promise.all(searchQueries.map((query) => webSearch(query)));
+      convo.push({
+        role: "system",
+        content: `Live web search results for the user's latest question (${JSON.stringify(latestUserMessage)}):\n${toolResults.map((result, index) => `Search ${index + 1}: ${result}`).join("\n\n")}\n\nUse these results to answer naturally. Include source links when useful. If results are weak, combine them with your own knowledge instead of refusing.`,
+      });
+    }
 
     // Tool-call loop (max 2 rounds). Non-streaming only when we need to inspect tool_calls;
     // as soon as the model produces a final answer, stream it directly to the client.
