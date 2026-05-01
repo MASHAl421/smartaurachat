@@ -1,10 +1,9 @@
-import { Plus, LogOut, Trash2, X, Menu, Search, Sun, Moon } from "lucide-react";
+import { Plus, LogOut, Trash2, X, Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tables } from "@/integrations/supabase/types";
 import { useMemo, useState } from "react";
 import auraLogo from "@/assets/aura-logo.png";
-import { useTheme } from "@/hooks/useTheme";
 
 interface Props {
   conversations: Tables<"conversations">[];
@@ -48,7 +47,6 @@ function groupConversations(convs: Tables<"conversations">[]): Group[] {
 
 export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete, onSignOut, userEmail, open, onClose, collapsed, onToggleCollapsed }: Props) => {
   const [query, setQuery] = useState("");
-  const { theme, toggleTheme } = useTheme();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -174,14 +172,6 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
               {userEmail?.[0]?.toUpperCase() || "?"}
             </div>
             <div className="text-[13px] text-sidebar-foreground/80 truncate flex-1">{userEmail}</div>
-            <button
-              onClick={toggleTheme}
-              className="text-sidebar-foreground/60 hover:text-sidebar-foreground p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              title={theme === "dark" ? "Light mode" : "Dark mode"}
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
             <button
               onClick={onSignOut}
               className="text-sidebar-foreground/60 hover:text-sidebar-foreground p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
