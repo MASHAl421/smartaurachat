@@ -214,19 +214,6 @@ const Index = () => {
     }
   }
 
-  function pickSuggestion(s: string) {
-    setInput("");
-    setSuggestions([]);
-    // Send immediately
-    setTimeout(() => {
-      setInput(s);
-      // Use a microtask to ensure input state is set, then send
-      requestAnimationFrame(() => {
-        const evt = { preventDefault: () => {} } as any;
-        // Direct send by calling sendMessage after setting input
-      });
-    }, 0);
-  }
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
