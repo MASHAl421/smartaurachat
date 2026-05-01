@@ -60,7 +60,7 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
             <div className="h-7 w-7 rounded-lg bg-gradient-hero flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-[17px] text-sidebar-foreground tracking-tight">aura chat</span>
+            <span className="text-sidebar-foreground tracking-tight font-bold font-sans text-xl opacity-100">Aura Chat</span>
           </div>
           <button
             onClick={onClose}
