@@ -393,7 +393,7 @@ const Index = () => {
           </>
         )}
         {activeId && (
-          <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/95 backdrop-blur-xl flex-shrink-0 z-10">
+          <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/95 backdrop-blur-xl flex-shrink-0 z-20 sticky top-0 md:static">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
               <Menu className="h-5 w-5" />
             </button>
