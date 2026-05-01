@@ -543,11 +543,13 @@ const Index = () => {
                 const isLastAssistant = m.role === "assistant" && i === messages.length - 1;
                 return (
                   <ChatMessage
-                    key={i}
+                    key={m.id || i}
                     role={m.role}
                     content={m.content}
                     streaming={sending && isLastAssistant}
                     onRegenerate={isLastAssistant && !sending ? regenerateLast : undefined}
+                    messageId={m.id}
+                    initialFeedback={m.id ? (feedbackMap[m.id] ?? null) : null}
                   />
                 );
               })
