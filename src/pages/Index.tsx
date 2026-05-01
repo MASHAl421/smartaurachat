@@ -52,6 +52,7 @@ const Index = () => {
     el.style.height = "auto";
     const next = Math.min(el.scrollHeight, maxHeight);
     el.style.height = `${next}px`;
+    // Always allow scroll once max is reached; CSS keeps scrollbar invisible until user actually scrolls.
     el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
   }, [input]);
 
