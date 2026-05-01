@@ -424,7 +424,7 @@ const TOOLS = [{
   },
 }];
 
-const OPENROUTER_MODEL = "google/gemini-2.0-flash-exp:free";
+const OPENROUTER_MODEL = "tencent/hy3-preview:free";
 
 async function callGateway(body: any, apiKey: string) {
   // Force OpenRouter model regardless of caller-specified model
