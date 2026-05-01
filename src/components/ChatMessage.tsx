@@ -34,7 +34,16 @@ export const ChatMessage = ({ role, content, streaming }: Props) => {
       <div className="flex-1 min-w-0 pt-0.5">
         {content ? (
           <div className="prose-chat">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ node, ...props }) => (
+                  <a {...props} target="_blank" rel="noopener noreferrer" />
+                ),
+              }}
+            >
+              {content}
+            </ReactMarkdown>
             {streaming && <span className="inline-block w-1.5 h-4 bg-primary ml-0.5 animate-pulse rounded-sm align-middle" />}
           </div>
         ) : (
