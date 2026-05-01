@@ -604,6 +604,7 @@ const Index = () => {
             ) : (
               messages.map((m, i) => {
                 const isLastAssistant = m.role === "assistant" && i === messages.length - 1;
+                const canEdit = m.role === "user" && !sending && i < messages.length;
                 return (
                   <ChatMessage
                     key={m.id || i}
@@ -613,6 +614,7 @@ const Index = () => {
                     onRegenerate={isLastAssistant && !sending ? regenerateLast : undefined}
                     messageId={m.id}
                     initialFeedback={m.id ? (feedbackMap[m.id] ?? null) : null}
+                    onEdit={canEdit ? (txt) => editUserMessage(i, txt) : undefined}
                   />
                 );
               })
