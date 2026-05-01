@@ -1,10 +1,12 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart, Volume2, Square } from "lucide-react";
+import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart, Volume2, Square, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 import { ThinkingIndicator } from "./ThinkingIndicator";
 import { supabase } from "@/integrations/supabase/client";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   role: "user" | "assistant";
@@ -13,6 +15,7 @@ interface Props {
   onRegenerate?: () => void;
   messageId?: string;
   initialFeedback?: "up" | "down" | null;
+  onEdit?: (newText: string) => void;
 }
 
 type Feedback = "up" | "down" | null;
