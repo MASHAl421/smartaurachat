@@ -418,7 +418,7 @@ Deno.serve(async (req) => {
 
     // Tool-call loop (max 2 rounds). Non-streaming only when we need to inspect tool_calls;
     // as soon as the model produces a final answer, stream it directly to the client.
-    for (let round = 0; round < 2; round++) {
+    for (let round = 0; round < 3; round++) {
       const resp = await callGateway({
         model: MODEL,
         messages: convo,
