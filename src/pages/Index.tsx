@@ -45,7 +45,12 @@ const Index = () => {
     if (skipLoadRef.current === activeId) { skipLoadRef.current = null; return; }
     loadMessages(activeId);
   }, [activeId]);
-  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Use instant scroll while streaming so each tiny content tick keeps up.
+    el.scrollTo({ top: el.scrollHeight, behavior: sending ? "auto" : "smooth" });
+  }, [messages, sending]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">Loading…</div>;
   if (!user) return <Navigate to="/auth" replace />;
@@ -214,6 +219,12 @@ const Index = () => {
           const step = Math.max(1, Math.ceil(remaining / 18));
           revealed = Math.min(fullText.length, revealed + step);
           setMessages([...newMessages, { role: "assistant", content: fullText.slice(0, revealed) }]);
+          const el = scrollRef.current;
+          if (el) {
+            // Only auto-scroll if user is already near the bottom (don't fight manual scroll-up)
+            const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+            if (nearBottom) el.scrollTop = el.scrollHeight;
+          }
         }
         if (!streamDone || revealed < fullText.length) {
           requestAnimationFrame(tick);
