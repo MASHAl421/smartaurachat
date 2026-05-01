@@ -46,6 +46,7 @@ export const ThinkingIndicator = () => {
       {/* Rotating thinking text with gradient shimmer */}
       <span
         key={idx}
+        data-text={PHASES[idx]}
         className="thinking-text-in thinking-text-shimmer text-[15px] font-medium tracking-tight"
       >
         {PHASES[idx]}
