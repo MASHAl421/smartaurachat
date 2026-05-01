@@ -464,19 +464,19 @@ Deno.serve(async (req) => {
 
     // ── Follow-up suggestions mode (non-streaming, JSON) ──
     if (mode === "suggestions") {
-      const trimmed = (messages || []).slice(-6); // last few turns is enough context
+      const trimmed = (messages || []).slice(-2); // anchor suggestions to the latest user/assistant exchange
       const sugResp = await callGateway({
         model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "system",
             content:
-              "You generate exactly 3 short follow-up question suggestions a student might tap next, based on the conversation so far. Focus on KPK Government College policies, admissions, conduct, penalties, dress code, fees, quotas, etc. Each suggestion must be a natural question under 9 words, no numbering, no quotes.",
+              "Generate exactly 3 short follow-up question suggestions the user might tap next, based ONLY on the latest user message and assistant answer. Stay on the same topic as the latest exchange; do not drift to older conversation topics. If the latest exchange is about college policies, suggest college-policy follow-ups. If it is about sports, news, scores, or anything else, suggest follow-ups about that topic. Match the user's language when obvious. Each suggestion must be a natural question under 9 words, no numbering, no quotes.",
           },
           ...trimmed,
         ],
         stream: false,
-        max_tokens: 200,
+        max_tokens: 120,
         temperature: 0.7,
         tools: [{
           type: "function",
