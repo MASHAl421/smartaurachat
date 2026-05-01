@@ -70,6 +70,33 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
       .replace(/\s+/g, " ")
       .trim();
 
+  const detectLang = (text: string): "ur" | "hi" | "en" => {
+    // Urdu/Arabic script range
+    if (/[\u0600-\u06FF\u0750-\u077F]/.test(text)) return "ur";
+    // Devanagari (Hindi)
+    if (/[\u0900-\u097F]/.test(text)) return "hi";
+    // Roman Urdu / Hinglish heuristic — common transliterated words
+    if (/\b(hai|hain|nahi|nahin|kya|kyun|kaisa|kaise|acha|accha|theek|thik|aap|tum|mera|tera|hum|main|bhi|aur|lekin|magar|sirf|abhi|kabhi|matlab|samajh|chahiye|kar|karo|karna|raha|rahi|rahe|gaya|gayi|gaye|mujhe|tujhe|hamen|unhen|ye|wo|woh|jab|tab|phir|toh)\b/i.test(text)) {
+      return "ur"; // Urdu voice handles roman urdu acceptably; closer than en
+    }
+    return "en";
+  };
+
+  const pickVoice = (lang: "ur" | "hi" | "en"): SpeechSynthesisVoice | null => {
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return null;
+    const prefs: Record<typeof lang, string[]> = {
+      ur: ["ur-PK", "ur-IN", "ur", "hi-IN", "hi"],
+      hi: ["hi-IN", "hi", "ur-PK", "ur"],
+      en: ["en-US", "en-GB", "en"],
+    };
+    for (const code of prefs[lang]) {
+      const match = voices.find((v) => v.lang?.toLowerCase().startsWith(code.toLowerCase()));
+      if (match) return match;
+    }
+    return null;
+  };
+
   const handleSpeak = () => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       toast.error("Speech not supported in this browser");
@@ -83,15 +110,37 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
     const text = stripMarkdown(content);
     if (!text) return;
     window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.rate = 1;
-    utt.pitch = 1;
-    utt.onend = () => setSpeaking(false);
-    utt.onerror = () => setSpeaking(false);
-    utteranceRef.current = utt;
-    window.speechSynthesis.speak(utt);
-    setSpeaking(true);
+
+    const speakNow = () => {
+      const lang = detectLang(text);
+      const voice = pickVoice(lang);
+      const utt = new SpeechSynthesisUtterance(text);
+      const langMap = { ur: "ur-PK", hi: "hi-IN", en: "en-US" } as const;
+      utt.lang = voice?.lang || langMap[lang];
+      if (voice) utt.voice = voice;
+      utt.rate = lang === "en" ? 1 : 0.95;
+      utt.pitch = 1;
+      utt.onend = () => setSpeaking(false);
+      utt.onerror = () => setSpeaking(false);
+      utteranceRef.current = utt;
+      window.speechSynthesis.speak(utt);
+      setSpeaking(true);
+    };
+
+    // Voices may load async on some browsers
+    if (!window.speechSynthesis.getVoices().length) {
+      const onVoices = () => {
+        window.speechSynthesis.removeEventListener("voiceschanged", onVoices);
+        speakNow();
+      };
+      window.speechSynthesis.addEventListener("voiceschanged", onVoices);
+      // Fallback in case event never fires
+      setTimeout(() => speakNow(), 200);
+    } else {
+      speakNow();
+    }
   };
+
 
   const handleCopy = async () => {
     try {
