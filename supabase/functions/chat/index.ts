@@ -592,7 +592,7 @@ Deno.serve(async (req) => {
       messages: convo,
       stream: true,
       max_tokens: 2048,
-      temperature: 0.7,
+      temperature: regenerate ? 0.95 : 0.7,
     }, LOVABLE_API_KEY);
     return new Response(finalResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
   } catch (e) {
