@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import auraLogo from "@/assets/aura-logo.jpeg";
+import { GraduationCap, Loader2 } from "lucide-react";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -53,7 +52,9 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 animate-fade-in-up">
-          <img src={auraLogo} alt="Aura Chat logo" className="inline-block h-16 w-16 rounded-2xl object-cover shadow-elegant mb-4" />
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-hero shadow-elegant mb-4">
+            <GraduationCap className="h-8 w-8 text-primary-foreground" />
+          </div>
           <h1 className="text-3xl font-bold text-foreground">College Policy Assistant</h1>
           <p className="text-muted-foreground mt-2">Sign in to chat with your AI policy guide</p>
         </div>
