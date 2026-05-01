@@ -13,6 +13,8 @@ interface Props {
   userEmail?: string;
   open: boolean;
   onClose: () => void;
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 }
 
 type Group = { label: string; items: Tables<"conversations">[] };
@@ -41,16 +43,16 @@ function groupConversations(convs: Tables<"conversations">[]): Group[] {
     .map(([label, items]) => ({ label, items }));
 }
 
-export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete, onSignOut, userEmail, open, onClose }: Props) => {
+export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete, onSignOut, userEmail, open, onClose, collapsed, onToggleCollapsed }: Props) => {
   const groups = useMemo(() => groupConversations(conversations), [conversations]);
 
   return (
     <>
       {open && <div className="md:hidden fixed inset-0 bg-foreground/40 backdrop-blur-sm z-30" onClick={onClose} />}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-40 w-72 bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border transition-transform duration-300 ${
+        className={`fixed md:static inset-y-0 left-0 z-40 w-72 bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border transition-all duration-300 ${
           open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        } ${collapsed ? "md:hidden" : ""}`}
       >
         {/* Brand */}
         <div className="px-4 pt-4 pb-3 flex items-center justify-between">
@@ -68,8 +70,9 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
             <X className="h-5 w-5" />
           </button>
           <button
-            className="hidden md:inline-flex text-sidebar-foreground/60 hover:text-sidebar-foreground p-1 rounded-md"
-            aria-label="Toggle sidebar"
+            onClick={onToggleCollapsed}
+            className="hidden md:inline-flex text-sidebar-foreground/60 hover:text-sidebar-foreground p-1 rounded-md hover:bg-sidebar-accent"
+            aria-label="Collapse sidebar"
           >
             <PanelLeft className="h-4 w-4" />
           </button>
