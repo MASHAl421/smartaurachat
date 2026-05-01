@@ -438,6 +438,9 @@ const Index = () => {
                 )}
               </div>
             )}
+
+            {/* Spacer so the latest user message can scroll up to the top of the viewport */}
+            {messages.length > 0 && <div aria-hidden className="h-[60vh]" />}
           </div>
         </div>
 
