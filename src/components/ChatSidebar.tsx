@@ -173,14 +173,6 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
             </div>
             <div className="text-[13px] text-sidebar-foreground/80 truncate flex-1">{userEmail}</div>
             <button
-              onClick={toggleTheme}
-              className="text-sidebar-foreground/60 hover:text-sidebar-foreground p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              title={theme === "dark" ? "Light mode" : "Dark mode"}
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
               onClick={onSignOut}
               className="text-sidebar-foreground/60 hover:text-sidebar-foreground p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
               aria-label="Sign out"
