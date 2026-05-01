@@ -38,7 +38,22 @@ const Index = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const skipLoadRef = useRef<string | null>(null); // conv id to skip auto-loading (just created locally)
+
+  // Auto-resize textarea: grow from 1 → up to 7 lines, then scroll.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const styles = window.getComputedStyle(el);
+    const lineHeight = parseFloat(styles.lineHeight) || 20;
+    const paddingY = parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+    const maxHeight = lineHeight * 7 + paddingY;
+    el.style.height = "auto";
+    const next = Math.min(el.scrollHeight, maxHeight);
+    el.style.height = `${next}px`;
+    el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [input]);
 
   useEffect(() => { if (user) loadConversations(); }, [user]);
   useEffect(() => {
