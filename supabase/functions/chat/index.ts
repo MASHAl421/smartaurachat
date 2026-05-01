@@ -424,7 +424,7 @@ const TOOLS = [{
   },
 }];
 
-const OPENROUTER_MODEL = "tencent/hy3-preview:free";
+const OPENROUTER_MODEL = "google/gemini-2.0-flash-exp:free";
 
 async function callGateway(body: any, apiKey: string) {
   // Force OpenRouter model regardless of caller-specified model
@@ -531,78 +531,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Tool-call loop (max 2 rounds). Non-streaming only when we need to inspect tool_calls;
-    // as soon as the model produces a final answer, stream it directly to the client.
-    for (let round = 0; round < 3; round++) {
-      const resp = await callGateway({
-        model: MODEL,
-        messages: convo,
-        tools: TOOLS,
-        stream: false,
-        max_tokens: 2048,
-        temperature: 0.4,
-      }, LOVABLE_API_KEY);
-
-      if (!resp.ok) {
-        if (resp.status === 429) return new Response(JSON.stringify({ error: "Rate limit reached. Please try again in a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-        if (resp.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits in Lovable workspace settings." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-        const t = await resp.text();
-        console.error("AI gateway error:", resp.status, t);
-        return new Response(JSON.stringify({ error: "AI gateway error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
-
-      const data = await resp.json();
-      const msg = data.choices?.[0]?.message;
-      if (!msg) throw new Error("Empty response from gateway");
-
-      const toolCalls = msg.tool_calls || [];
-      if (toolCalls.length === 0) {
-        // Model already produced the final text — stream it as SSE so the UI can typewriter it.
-        const finalText: string = msg.content || "";
-        const stream = new ReadableStream({
-          start(controller) {
-            const enc = new TextEncoder();
-            // Chunk the text into ~12-char pieces for a smooth streaming feel
-            const CHUNK = 12;
-            for (let i = 0; i < finalText.length; i += CHUNK) {
-              const piece = finalText.slice(i, i + CHUNK);
-              const payload = JSON.stringify({ choices: [{ delta: { content: piece } }] });
-              controller.enqueue(enc.encode(`data: ${payload}\n\n`));
-            }
-            controller.enqueue(enc.encode(`data: [DONE]\n\n`));
-            controller.close();
-          },
-        });
-        return new Response(stream, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
-      }
-
-      // Execute tools in parallel
-      convo.push(msg);
-      const toolResults = await Promise.all(toolCalls.map(async (call: any) => {
-        let result = "";
-        if (call.function?.name === "web_search") {
-          try {
-            const args = JSON.parse(call.function.arguments || "{}");
-            result = await webSearch(args.query || "");
-          } catch (e) {
-            result = JSON.stringify({ error: e instanceof Error ? e.message : "tool error" });
-          }
-        } else {
-          result = JSON.stringify({ error: `unknown tool: ${call.function?.name}` });
-        }
-        return { role: "tool", tool_call_id: call.id, content: result };
-      }));
-      convo.push(...toolResults);
-    }
-
-    // After tool round(s): stream the final answer directly from the gateway.
+    // Stream the final answer directly from the gateway — no slow non-streaming round trips.
     const finalResp = await callGateway({
-      model: MODEL,
       messages: convo,
       stream: true,
-      max_tokens: 2048,
-      temperature: regenerate ? 0.95 : 0.7,
+      max_tokens: 1024,
+      temperature: regenerate ? 0.95 : 0.6,
     }, LOVABLE_API_KEY);
+
+    if (!finalResp.ok) {
+      if (finalResp.status === 429) return new Response(JSON.stringify({ error: "Rate limit reached. Please try again in a moment." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (finalResp.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const t = await finalResp.text();
+      console.error("AI gateway error:", finalResp.status, t);
+      return new Response(JSON.stringify({ error: "AI gateway error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     return new Response(finalResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
   } catch (e) {
     console.error("chat error:", e);
