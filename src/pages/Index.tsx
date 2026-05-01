@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap, Zap, Globe, Paperclip, Sparkles } from "lucide-react";
+import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
@@ -209,16 +209,6 @@ const Index = () => {
           <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted">
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex flex-col leading-tight">
-            <h1 className="font-semibold text-foreground text-[14px] tracking-tight">
-              {activeId
-                ? conversations.find(c => c.id === activeId)?.title || "New chat"
-                : "New chat"}
-            </h1>
-            <span className="text-[11px] text-primary flex items-center gap-1 font-medium">
-              <Zap className="h-3 w-3 fill-primary" /> Instant
-            </span>
-          </div>
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
@@ -277,29 +267,8 @@ const Index = () => {
                 rows={1}
                 className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 p-0 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[24px]"
               />
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-border text-[13px] text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors"
-                  >
-                    <Zap className="h-3.5 w-3.5" /> DeepThink
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-border text-[13px] text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors"
-                  >
-                    <Globe className="h-3.5 w-3.5" /> Search
-                  </button>
-                </div>
+              <div className="flex items-center justify-end mt-3">
                 <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors"
-                    aria-label="Attach"
-                  >
-                    <Paperclip className="h-4 w-4" />
-                  </button>
                   <Button
                     onClick={sendMessage}
                     disabled={!input.trim() || sending}
