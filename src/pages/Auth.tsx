@@ -35,11 +35,9 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success("Account created — welcome!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Welcome back!");
       }
       navigate("/");
     } catch (err: any) {
