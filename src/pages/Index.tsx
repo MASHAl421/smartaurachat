@@ -324,11 +324,16 @@ const Index = () => {
         // Fire-and-forget: fetch follow-up suggestions
         fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Connection error");
-      setMessages(newMessages);
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        // user stopped — keep whatever was streamed so far
+      } else {
+        console.error(err);
+        toast.error("Connection error");
+        setMessages(newMessages);
+      }
     } finally {
+      abortRef.current = null;
       setSending(false);
     }
   }
