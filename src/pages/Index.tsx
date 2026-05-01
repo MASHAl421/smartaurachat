@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, Plus, ScrollText, Scale, ShieldAlert, GraduationCap } from "lucide-react";
+import { Menu, ArrowUp, Sparkles, ScrollText, Scale, ShieldAlert, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
@@ -217,24 +217,29 @@ const Index = () => {
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 sm:py-10 space-y-5 sm:space-y-7">
             {messages.length === 0 ? (
-              <div className="text-center pt-10 sm:pt-24 animate-fade-in-up">
-                <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-3 text-foreground">
-                  How can I help you learn today?
+              <div className="text-center pt-8 sm:pt-20 animate-fade-in-up">
+                <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-hero animate-gradient shadow-elegant mb-7">
+                  <Sparkles className="h-8 w-8 text-primary-foreground" />
+                </div>
+                <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
+                  <span className="text-gradient">Hello there.</span>
                 </h2>
-                <p className="text-muted-foreground text-base max-w-md mx-auto mb-10">
-                  Ask about college rules, academics, or anything you're curious about.
+                <p className="text-muted-foreground text-lg max-w-md mx-auto mb-12">
+                  How can I help you today?
                 </p>
-                <div className="grid sm:grid-cols-2 gap-2.5 max-w-2xl mx-auto">
+                <div className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
                   {SUGGESTIONS.map((s, i) => (
                     <button
                       key={i}
                       onClick={() => setInput(s.text)}
-                      className="text-left p-3.5 rounded-xl border border-border bg-card hover:bg-muted/60 transition-colors flex items-center gap-3 group"
+                      className="text-left p-4 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 hover:shadow-elegant transition-all duration-200 flex items-start gap-3 group"
                     >
-                      <s.icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-sm text-foreground/90 leading-snug">{s.text}</span>
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
+                        <s.icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="text-sm text-foreground/90 leading-relaxed">{s.text}</span>
                     </button>
                   ))}
                 </div>
@@ -252,36 +257,29 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-t from-background via-background to-transparent pt-4 pb-3 sm:pb-4 px-3 sm:px-4">
+        <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-4 px-3 sm:px-4">
           <div className="max-w-3xl mx-auto">
-            <div className="relative flex items-center gap-1 bg-card border border-border rounded-full shadow-soft focus-within:border-primary/50 focus-within:shadow-elegant transition-all pl-2 pr-1.5">
-              <button
-                type="button"
-                aria-label="Attach"
-                className="h-9 w-9 flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors flex-shrink-0"
-              >
-                <Plus className="h-5 w-5" />
-              </button>
+            <div className="relative flex items-end gap-2 bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/50 focus-within:shadow-elegant transition-all px-2">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
-                placeholder="Ask anything"
+                placeholder="Ask Aura Chat anything…"
                 disabled={sending}
                 rows={1}
-                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 py-3 px-1 text-[15px] placeholder:text-muted-foreground/70 min-h-0"
+                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 py-4 pl-3 pr-14 text-[15px] placeholder:text-muted-foreground/70"
               />
               <Button
                 onClick={sendMessage}
                 disabled={!input.trim() || sending}
                 size="icon"
-                className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
+                className="absolute right-2.5 bottom-2.5 h-9 w-9 rounded-full bg-gradient-hero animate-gradient hover:opacity-90 disabled:opacity-30 disabled:bg-muted disabled:bg-none shadow-soft"
               >
                 <ArrowUp className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground/80 text-center mt-2.5">
-              Aura Chat may make mistakes — verify important information.
+              Aura Chat may make mistakes — verify important matters with college administration.
             </p>
           </div>
         </div>
