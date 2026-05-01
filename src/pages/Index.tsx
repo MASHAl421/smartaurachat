@@ -82,6 +82,27 @@ const Index = () => {
     loadConversations();
   }
 
+  async function regenerateLast() {
+    if (sending || !user || !activeId) return;
+    // Find last user message
+    let lastUserIdx = -1;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === "user") { lastUserIdx = i; break; }
+    }
+    if (lastUserIdx === -1) return;
+    const lastUser = messages[lastUserIdx];
+    const trimmed = messages.slice(0, lastUserIdx);
+    // Delete the last assistant message from DB (best-effort: latest assistant msg in this conv)
+    const lastAssistant = messages[messages.length - 1];
+    if (lastAssistant?.role === "assistant" && lastAssistant.id) {
+      await supabase.from("messages").delete().eq("id", lastAssistant.id);
+    }
+    setMessages(trimmed);
+    setInput(lastUser.content);
+    // Slight delay to let state settle, then send
+    setTimeout(() => { sendMessage(); }, 0);
+  }
+
   async function fetchSuggestions(history: Msg[]) {
     try {
       setLoadingSuggestions(true);
@@ -322,14 +343,18 @@ const Index = () => {
                 </div>
               </div>
             ) : (
-              messages.map((m, i) => (
-                <ChatMessage
-                  key={i}
-                  role={m.role}
-                  content={m.content}
-                  streaming={sending && i === messages.length - 1 && m.role === "assistant"}
-                />
-              ))
+              messages.map((m, i) => {
+                const isLastAssistant = m.role === "assistant" && i === messages.length - 1;
+                return (
+                  <ChatMessage
+                    key={i}
+                    role={m.role}
+                    content={m.content}
+                    streaming={sending && isLastAssistant}
+                    onRegenerate={isLastAssistant && !sending ? regenerateLast : undefined}
+                  />
+                );
+              })
             )}
 
             {/* Follow-up suggestion chips */}
