@@ -7,8 +7,14 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap } from "lucide-react";
+import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
@@ -64,6 +70,15 @@ const Index = () => {
   async function deleteConversation(id: string) {
     await supabase.from("conversations").delete().eq("id", id);
     if (activeId === id) { setActiveId(null); setMessages([]); }
+    loadConversations();
+  }
+
+  async function renameConversation(id: string) {
+    const current = conversations.find(c => c.id === id);
+    const next = window.prompt("Rename chat", current?.title || "");
+    if (!next || !next.trim() || next === current?.title) return;
+    const { error } = await supabase.from("conversations").update({ title: next.trim() }).eq("id", id);
+    if (error) { toast.error("Couldn't rename"); return; }
     loadConversations();
   }
 
@@ -236,7 +251,7 @@ const Index = () => {
       />
 
       <main className="flex-1 flex flex-col min-w-0 relative bg-background">
-        <header className="h-14 border-b border-border/70 flex items-center px-4 gap-3 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
+        <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
           <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
             <Menu className="h-5 w-5" />
           </button>
@@ -245,6 +260,34 @@ const Index = () => {
               <Menu className="h-5 w-5" />
             </button>
           )}
+
+          {activeId && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-muted text-sm font-medium text-foreground/90 max-w-[60%] truncate outline-none">
+                <span className="truncate">
+                  {conversations.find(c => c.id === activeId)?.title || "Chat"}
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-44">
+                <DropdownMenuItem onClick={() => renameConversation(activeId)}>
+                  <Pencil className="h-4 w-4 mr-2" /> Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => deleteConversation(activeId)} className="text-destructive focus:text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          <button
+            onClick={newChat}
+            className="ml-auto p-1.5 rounded-md hover:bg-muted text-foreground/80"
+            aria-label="New chat"
+            title="New chat"
+          >
+            <SquarePen className="h-[18px] w-[18px]" />
+          </button>
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
