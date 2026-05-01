@@ -41,7 +41,7 @@ const ActionButton = forwardRef<
 ));
 ActionButton.displayName = "ActionButton";
 
-export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId, initialFeedback = null }: Props) => {
+export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId, initialFeedback = null, onEdit }: Props) => {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(initialFeedback);
