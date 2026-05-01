@@ -167,9 +167,8 @@ const Index = () => {
     const newMessages = [...baseMessages, userMsg];
     setMessages([...newMessages, { role: "assistant", content: "" }]);
 
-    // Scroll the new user message just under the header so the previous
-    // answer goes above and the new input + thinking indicator stays
-    // comfortably in view (not jammed to the very top).
+    // Smoothly scroll the new user message just under the header.
+    // Custom rAF easing for a softer, more polished feel than native smooth.
     requestAnimationFrame(() => {
       const container = scrollRef.current;
       if (!container) return;
@@ -177,8 +176,22 @@ const Index = () => {
       const lastUser = userEls[userEls.length - 1];
       if (!lastUser) return;
       const offset = 72; // breathing room below header
-      const top = Math.max(0, lastUser.offsetTop - offset);
-      container.scrollTo({ top, behavior: "smooth" });
+      const targetTop = Math.max(0, lastUser.offsetTop - offset);
+      const startTop = container.scrollTop;
+      const distance = targetTop - startTop;
+      if (Math.abs(distance) < 2) return;
+      const duration = 650; // ms — slow enough to feel smooth, quick enough to stay snappy
+      const startTime = performance.now();
+      // easeInOutCubic — gentle acceleration & deceleration
+      const ease = (t: number) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        container.scrollTop = startTop + distance * ease(t);
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
     });
 
     // Persist user message (skip when regenerating — user msg already in DB)
