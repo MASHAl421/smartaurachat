@@ -8,7 +8,7 @@ import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2 } from "lucide-react";
-import auraLogo from "@/assets/aura-logo.jpeg";
+import auraLogo from "@/assets/aura-logo.png";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -343,7 +343,7 @@ const Index = () => {
                   <img
                     src={auraLogo}
                     alt="AURA logo"
-                    className="inline-block h-14 w-14 rounded-2xl object-cover shadow-elegant mb-5"
+                    className="inline-block h-20 w-20 object-contain mb-5"
                   />
                   <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
                     Hey there! How can I help you today?
