@@ -273,26 +273,35 @@ const Index = () => {
       requestAnimationFrame(tick);
 
       let done = false;
-      while (!done) {
-        const { done: d, value } = await reader.read();
-        if (d) break;
-        buffer += decoder.decode(value, { stream: true });
-        let idx: number;
-        while ((idx = buffer.indexOf("\n")) !== -1) {
-          let line = buffer.slice(0, idx);
-          buffer = buffer.slice(idx + 1);
-          if (line.endsWith("\r")) line = line.slice(0, -1);
-          if (!line.startsWith("data: ")) continue;
-          const json = line.slice(6).trim();
-          if (json === "[DONE]") { done = true; break; }
-          try {
-            const parsed = JSON.parse(json);
-            const delta = parsed.choices?.[0]?.delta?.content;
-            if (delta) fullText += delta;
-          } catch {
-            buffer = line + "\n" + buffer;
-            break;
+      let aborted = false;
+      try {
+        while (!done) {
+          const { done: d, value } = await reader.read();
+          if (d) break;
+          buffer += decoder.decode(value, { stream: true });
+          let idx: number;
+          while ((idx = buffer.indexOf("\n")) !== -1) {
+            let line = buffer.slice(0, idx);
+            buffer = buffer.slice(idx + 1);
+            if (line.endsWith("\r")) line = line.slice(0, -1);
+            if (!line.startsWith("data: ")) continue;
+            const json = line.slice(6).trim();
+            if (json === "[DONE]") { done = true; break; }
+            try {
+              const parsed = JSON.parse(json);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) fullText += delta;
+            } catch {
+              buffer = line + "\n" + buffer;
+              break;
+            }
           }
+        }
+      } catch (e: any) {
+        if (e?.name === "AbortError" || controller.signal.aborted) {
+          aborted = true;
+        } else {
+          throw e;
         }
       }
       streamDone = true;
