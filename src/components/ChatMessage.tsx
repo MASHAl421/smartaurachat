@@ -1,10 +1,12 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart, Volume2, Square } from "lucide-react";
+import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart, Volume2, Square, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 import { ThinkingIndicator } from "./ThinkingIndicator";
 import { supabase } from "@/integrations/supabase/client";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   role: "user" | "assistant";
@@ -13,6 +15,7 @@ interface Props {
   onRegenerate?: () => void;
   messageId?: string;
   initialFeedback?: "up" | "down" | null;
+  onEdit?: (newText: string) => void;
 }
 
 type Feedback = "up" | "down" | null;
@@ -38,7 +41,7 @@ const ActionButton = forwardRef<
 ));
 ActionButton.displayName = "ActionButton";
 
-export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId, initialFeedback = null }: Props) => {
+export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId, initialFeedback = null, onEdit }: Props) => {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(initialFeedback);
@@ -70,6 +73,33 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
       .replace(/\s+/g, " ")
       .trim();
 
+  const detectLang = (text: string): "ur" | "hi" | "en" => {
+    // Urdu/Arabic script range
+    if (/[\u0600-\u06FF\u0750-\u077F]/.test(text)) return "ur";
+    // Devanagari (Hindi)
+    if (/[\u0900-\u097F]/.test(text)) return "hi";
+    // Roman Urdu / Hinglish heuristic — common transliterated words
+    if (/\b(hai|hain|nahi|nahin|kya|kyun|kaisa|kaise|acha|accha|theek|thik|aap|tum|mera|tera|hum|main|bhi|aur|lekin|magar|sirf|abhi|kabhi|matlab|samajh|chahiye|kar|karo|karna|raha|rahi|rahe|gaya|gayi|gaye|mujhe|tujhe|hamen|unhen|ye|wo|woh|jab|tab|phir|toh)\b/i.test(text)) {
+      return "ur"; // Urdu voice handles roman urdu acceptably; closer than en
+    }
+    return "en";
+  };
+
+  const pickVoice = (lang: "ur" | "hi" | "en"): SpeechSynthesisVoice | null => {
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return null;
+    const prefs: Record<typeof lang, string[]> = {
+      ur: ["ur-PK", "ur-IN", "ur", "hi-IN", "hi"],
+      hi: ["hi-IN", "hi", "ur-PK", "ur"],
+      en: ["en-US", "en-GB", "en"],
+    };
+    for (const code of prefs[lang]) {
+      const match = voices.find((v) => v.lang?.toLowerCase().startsWith(code.toLowerCase()));
+      if (match) return match;
+    }
+    return null;
+  };
+
   const handleSpeak = () => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       toast.error("Speech not supported in this browser");
@@ -83,15 +113,37 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
     const text = stripMarkdown(content);
     if (!text) return;
     window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.rate = 1;
-    utt.pitch = 1;
-    utt.onend = () => setSpeaking(false);
-    utt.onerror = () => setSpeaking(false);
-    utteranceRef.current = utt;
-    window.speechSynthesis.speak(utt);
-    setSpeaking(true);
+
+    const speakNow = () => {
+      const lang = detectLang(text);
+      const voice = pickVoice(lang);
+      const utt = new SpeechSynthesisUtterance(text);
+      const langMap = { ur: "ur-PK", hi: "hi-IN", en: "en-US" } as const;
+      utt.lang = voice?.lang || langMap[lang];
+      if (voice) utt.voice = voice;
+      utt.rate = lang === "en" ? 1 : 0.95;
+      utt.pitch = 1;
+      utt.onend = () => setSpeaking(false);
+      utt.onerror = () => setSpeaking(false);
+      utteranceRef.current = utt;
+      window.speechSynthesis.speak(utt);
+      setSpeaking(true);
+    };
+
+    // Voices may load async on some browsers
+    if (!window.speechSynthesis.getVoices().length) {
+      const onVoices = () => {
+        window.speechSynthesis.removeEventListener("voiceschanged", onVoices);
+        speakNow();
+      };
+      window.speechSynthesis.addEventListener("voiceschanged", onVoices);
+      // Fallback in case event never fires
+      setTimeout(() => speakNow(), 200);
+    } else {
+      speakNow();
+    }
   };
+
 
   const handleCopy = async () => {
     try {
@@ -160,18 +212,12 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
 
   if (isUser) {
     return (
-      <div data-role="user" className="group flex flex-col items-end animate-fade-in-up scroll-mt-4">
-        <div className="max-w-[85%] sm:max-w-[75%]">
-          <div className="bg-secondary text-secondary-foreground rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3">
-            <p className="whitespace-pre-wrap leading-relaxed text-[14.5px] sm:text-[15px]">{content}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-0.5 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <ActionButton onClick={handleCopy} label={copied ? "Copied" : "Copy"}>
-            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          </ActionButton>
-        </div>
-      </div>
+      <UserBubble
+        content={content}
+        onEdit={onEdit}
+        onCopy={handleCopy}
+        copied={copied}
+      />
     );
   }
 
@@ -278,3 +324,112 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
     </div>
   );
 };
+
+interface UserBubbleProps {
+  content: string;
+  onEdit?: (newText: string) => void;
+  onCopy: () => void;
+  copied: boolean;
+}
+
+const UserBubble = ({ content, onEdit, onCopy, copied }: UserBubbleProps) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(content);
+  const editTaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (editing) {
+      const el = editTaRef.current;
+      if (el) {
+        el.focus();
+        el.setSelectionRange(el.value.length, el.value.length);
+        el.style.height = "auto";
+        el.style.height = `${Math.min(el.scrollHeight, 280)}px`;
+      }
+    }
+  }, [editing]);
+
+  const startEdit = () => {
+    setDraft(content);
+    setEditing(true);
+  };
+  const cancelEdit = () => setEditing(false);
+  const submitEdit = () => {
+    const text = draft.trim();
+    if (!text || text === content.trim()) { setEditing(false); return; }
+    onEdit?.(text);
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <div data-role="user" className="group flex flex-col items-end animate-fade-in-up scroll-mt-4">
+        <div className="w-full max-w-[85%] sm:max-w-[75%]">
+          <div className="bg-secondary text-secondary-foreground rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5">
+            <Textarea
+              ref={editTaRef}
+              value={draft}
+              onChange={(e) => {
+                setDraft(e.target.value);
+                const el = e.currentTarget;
+                el.style.height = "auto";
+                el.style.height = `${Math.min(el.scrollHeight, 280)}px`;
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitEdit(); }
+                else if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+              }}
+              rows={1}
+              className="border-0 bg-transparent focus-visible:ring-0 resize-none p-0 text-[14.5px] sm:text-[15px] leading-relaxed shadow-none min-h-[20px]"
+              placeholder="Edit your message"
+            />
+          </div>
+          <div className="flex items-center justify-end gap-2 mt-2">
+            <Button onClick={cancelEdit} variant="ghost" size="sm" className="h-8 rounded-full px-3 text-xs">
+              Cancel
+            </Button>
+            <Button
+              onClick={submitEdit}
+              size="sm"
+              className="h-8 rounded-full px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+              disabled={!draft.trim() || draft.trim() === content.trim()}
+            >
+              Send
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div data-role="user" className="group flex flex-col items-end animate-fade-in-up scroll-mt-4">
+      <div className="max-w-[85%] sm:max-w-[75%]">
+        <div className="bg-secondary text-secondary-foreground rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3">
+          <p className="whitespace-pre-wrap leading-relaxed text-[14.5px] sm:text-[15px]">{content}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-0.5 mt-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+        <button
+          onClick={onCopy}
+          aria-label={copied ? "Copied" : "Copy"}
+          title={copied ? "Copied" : "Copy"}
+          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+        </button>
+        {onEdit && (
+          <button
+            onClick={startEdit}
+            aria-label="Edit message"
+            title="Edit"
+            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+

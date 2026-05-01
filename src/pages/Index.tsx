@@ -16,6 +16,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 type Attachment = { url: string; name: string; type: string };
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
@@ -41,6 +49,9 @@ const Index = () => {
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const [uploading, setUploading] = useState(false);
   const [feedbackMap, setFeedbackMap] = useState<Record<string, "up" | "down">>({});
+  const [renameTarget, setRenameTarget] = useState<{ id: string; title: string } | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -65,6 +76,25 @@ const Index = () => {
     // Always allow scroll once max is reached; CSS keeps scrollbar invisible until user actually scrolls.
     el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
   }, [input]);
+
+  // Mobile keyboard: track visualViewport so the composer stays above the keyboard.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      // Difference between layout viewport and visual viewport ≈ keyboard height
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardOffset(offset > 80 ? offset : 0);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
 
   useEffect(() => { if (user) loadConversations(); }, [user]);
   useEffect(() => {
@@ -146,13 +176,46 @@ const Index = () => {
     loadConversations();
   }
 
-  async function renameConversation(id: string) {
+  function openRename(id: string) {
     const current = conversations.find(c => c.id === id);
-    const next = window.prompt("Rename chat", current?.title || "");
-    if (!next || !next.trim() || next === current?.title) return;
-    const { error } = await supabase.from("conversations").update({ title: next.trim() }).eq("id", id);
+    if (!current) return;
+    setRenameTarget({ id, title: current.title });
+    setRenameValue(current.title);
+  }
+
+  async function submitRename() {
+    if (!renameTarget) return;
+    const next = renameValue.trim();
+    if (!next || next === renameTarget.title) { setRenameTarget(null); return; }
+    const { error } = await supabase.from("conversations").update({ title: next }).eq("id", renameTarget.id);
+    setRenameTarget(null);
     if (error) { toast.error("Couldn't rename"); return; }
     loadConversations();
+  }
+
+  async function editUserMessage(index: number, newText: string) {
+    if (sending || !user || !activeId) return;
+    const target = messages[index];
+    if (!target || target.role !== "user") return;
+    // Persist edit on the user message
+    if (target.id) {
+      const { error } = await supabase.from("messages").update({ content: newText }).eq("id", target.id);
+      if (error) { toast.error("Couldn't save edit"); return; }
+    }
+    // Delete every message after the edited one (locally + DB)
+    const tail = messages.slice(index + 1);
+    const tailIds = tail.map(m => m.id).filter(Boolean) as string[];
+    if (tailIds.length) {
+      await supabase.from("messages").delete().in("id", tailIds);
+    }
+    const baseHistory = messages.slice(0, index); // sendMessage will re-add the user msg
+    setSuggestions([]);
+    setMessages([...baseHistory, { ...target, content: newText }, { role: "assistant", content: "" }]);
+    await sendMessage({
+      overrideText: newText,
+      baseHistory,
+      skipPersistUser: true, // we already updated the existing user row
+    });
   }
 
   async function regenerateLast() {
@@ -485,7 +548,7 @@ const Index = () => {
                 <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-44">
-                <DropdownMenuItem onClick={() => renameConversation(activeId)}>
+                <DropdownMenuItem onClick={() => openRename(activeId)}>
                   <Pencil className="h-4 w-4 mr-2" /> Rename
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => deleteConversation(activeId)} className="text-destructive focus:text-destructive">
@@ -541,6 +604,7 @@ const Index = () => {
             ) : (
               messages.map((m, i) => {
                 const isLastAssistant = m.role === "assistant" && i === messages.length - 1;
+                const canEdit = m.role === "user" && !sending && i < messages.length;
                 return (
                   <ChatMessage
                     key={m.id || i}
@@ -550,6 +614,7 @@ const Index = () => {
                     onRegenerate={isLastAssistant && !sending ? regenerateLast : undefined}
                     messageId={m.id}
                     initialFeedback={m.id ? (feedbackMap[m.id] ?? null) : null}
+                    onEdit={canEdit ? (txt) => editUserMessage(i, txt) : undefined}
                   />
                 );
               })
@@ -584,7 +649,10 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-t from-background via-background to-transparent pt-2 sm:pt-6 pb-3 sm:pb-5 px-3 sm:px-6 flex-shrink-0 sticky bottom-0 md:static z-10">
+        <div
+          className="bg-gradient-to-t from-background via-background to-transparent pt-2 sm:pt-6 pb-3 sm:pb-5 px-3 sm:px-6 flex-shrink-0 sticky bottom-0 md:static z-10 transition-transform duration-150"
+          style={keyboardOffset > 0 ? { transform: `translateY(-${keyboardOffset}px)` } : undefined}
+        >
           <div className="max-w-3xl mx-auto">
             <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all px-2 py-1.5">
               {/* Attachment chips */}
@@ -683,6 +751,35 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      {/* Rename chat dialog */}
+      <Dialog open={!!renameTarget} onOpenChange={(o) => { if (!o) setRenameTarget(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Rename chat</DialogTitle>
+          </DialogHeader>
+          <Input
+            autoFocus
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { e.preventDefault(); submitRename(); }
+              else if (e.key === "Escape") { e.preventDefault(); setRenameTarget(null); }
+            }}
+            placeholder="Chat name"
+            maxLength={120}
+          />
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="ghost" onClick={() => setRenameTarget(null)}>Cancel</Button>
+            <Button
+              onClick={submitRename}
+              disabled={!renameValue.trim() || renameValue.trim() === renameTarget?.title}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
