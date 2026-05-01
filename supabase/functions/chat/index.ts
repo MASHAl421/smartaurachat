@@ -347,17 +347,32 @@ Below is the OFFICIAL KNOWLEDGE BASE — treat it as the single source of truth 
 
 ${POLICIES}`;
 
+const CORE_POLICIES = POLICIES.split("\n# PART C")[0].trim();
+
+function needsCollegeDirectory(input: string): boolean {
+  return /\b(college\s+list|colleges\s+in|all\s+colleges|district|gdc|gpgc|ggdc|ggc|government\s+(degree|postgraduate|girls|college))\b/i.test(input);
+}
+
+function buildSystemPrompt(input: string): string {
+  const knowledge = needsCollegeDirectory(input) ? POLICIES : CORE_POLICIES;
+  return SYSTEM_PROMPT.replace(POLICIES, knowledge);
+}
+
 // --- Web search tool (Serper.dev — Google results) ---
 async function webSearch(query: string): Promise<string> {
   try {
     const SERPER_API_KEY = Deno.env.get("SERPER_API_KEY");
     if (!SERPER_API_KEY) return JSON.stringify({ error: "SERPER_API_KEY missing" });
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4500);
     const res = await fetch("https://google.serper.dev/search", {
       method: "POST",
       headers: { "X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ q: query, num: 8 }),
+      body: JSON.stringify({ q: query, num: 4 }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     if (!res.ok) return JSON.stringify({ error: `Serper ${res.status}: ${await res.text()}` });
     const data = await res.json();
 
@@ -376,7 +391,7 @@ async function webSearch(query: string): Promise<string> {
         url: data.knowledgeGraph.descriptionLink || data.knowledgeGraph.website || "",
       });
     }
-    for (const r of (data.organic || []).slice(0, 6)) {
+    for (const r of (data.organic || []).slice(0, 3)) {
       results.push({ title: r.title || "", snippet: r.snippet || "", url: r.link || "" });
     }
 
@@ -402,10 +417,8 @@ function buildSearchQueries(input: string): string[] {
   const clean = input.replace(/\s+/g, " ").trim();
   return Array.from(new Set([
     clean,
-    `${clean} official`,
     `site:admission.hed.gkp.pk ${clean}`,
-    `site:hed.gkp.pk ${clean}`,
-  ])).slice(0, 4);
+  ])).slice(0, 2);
 }
 
 const TOOLS = [{
@@ -512,14 +525,13 @@ Deno.serve(async (req) => {
     }
 
     const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
-    const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
+    const convo: any[] = [{ role: "system", content: buildSystemPrompt(latestUserMessage) }, ...messages];
     if (regenerate) {
       convo.push({
         role: "system",
         content: `The user has requested a regenerated answer. Your previous answer was:\n\n"""${(previousAnswer || "").slice(0, 4000)}"""\n\nProduce a NEW answer that is meaningfully different from the previous one — try a different angle, structure, examples, wording, or level of detail — while remaining accurate and on-topic. Do not simply rephrase the previous answer.`,
       });
     }
-    const MODEL = "google/gemini-2.5-pro";
     const shouldSearchFirst = shouldForceSearch(latestUserMessage);
 
     if (shouldSearchFirst) {
@@ -535,8 +547,9 @@ Deno.serve(async (req) => {
     const finalResp = await callGateway({
       messages: convo,
       stream: true,
-      max_tokens: 1024,
+      max_tokens: 650,
       temperature: regenerate ? 0.95 : 0.6,
+      reasoning: { effort: "none", exclude: true },
     }, LOVABLE_API_KEY);
 
     if (!finalResp.ok) {
