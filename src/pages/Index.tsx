@@ -49,6 +49,9 @@ const Index = () => {
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const [uploading, setUploading] = useState(false);
   const [feedbackMap, setFeedbackMap] = useState<Record<string, "up" | "down">>({});
+  const [renameTarget, setRenameTarget] = useState<{ id: string; title: string } | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
