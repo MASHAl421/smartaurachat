@@ -102,8 +102,43 @@ const Index = () => {
     setActiveId(null);
     setMessages([]);
     setSuggestions([]);
+    setPendingAttachments([]);
     setSidebarOpen(false);
   }
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length || !user) return;
+    if (pendingAttachments.length + files.length > 4) {
+      toast.error("Up to 4 files at a time");
+      return;
+    }
+    setUploading(true);
+    try {
+      for (const file of files) {
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(`${file.name} is over 10MB`);
+          continue;
+        }
+        const ext = file.name.split(".").pop() || "bin";
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error } = await supabase.storage.from("chat-attachments").upload(path, file, {
+          contentType: file.type || "application/octet-stream",
+        });
+        if (error) { toast.error(`Upload failed: ${file.name}`); continue; }
+        const { data } = supabase.storage.from("chat-attachments").getPublicUrl(path);
+        setPendingAttachments((prev) => [...prev, { url: data.publicUrl, name: file.name, type: file.type || "application/octet-stream" }]);
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeAttachment(idx: number) {
+    setPendingAttachments((prev) => prev.filter((_, i) => i !== idx));
+  }
+
 
   async function deleteConversation(id: string) {
     await supabase.from("conversations").delete().eq("id", id);
