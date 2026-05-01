@@ -167,6 +167,19 @@ const Index = () => {
     const newMessages = [...baseMessages, userMsg];
     setMessages([...newMessages, { role: "assistant", content: "" }]);
 
+    // Scroll the new user message to the top of the viewport so the
+    // previous answer goes above and the new input + thinking indicator
+    // sits right under the header.
+    requestAnimationFrame(() => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const userEls = container.querySelectorAll<HTMLElement>("[data-role='user']");
+      const lastUser = userEls[userEls.length - 1];
+      if (!lastUser) return;
+      const top = lastUser.offsetTop - 12; // small breathing room under header
+      container.scrollTo({ top, behavior: "smooth" });
+    });
+
     // Persist user message (skip when regenerating — user msg already in DB)
     if (!opts?.skipPersistUser) {
       await supabase.from("messages").insert({
