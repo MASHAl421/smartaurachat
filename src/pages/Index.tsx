@@ -325,10 +325,14 @@ const Index = () => {
           // Fire-and-forget: fetch follow-up suggestions
           fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
         }
+      } else if (aborted) {
+        // Stopped before any token arrived — remove the empty assistant placeholder
+        setMessages(newMessages);
       }
     } catch (err: any) {
       if (err?.name === "AbortError") {
-        // user stopped — keep whatever was streamed so far
+        // user stopped before stream began — drop empty assistant placeholder
+        setMessages(newMessages);
       } else {
         console.error(err);
         toast.error("Connection error");
