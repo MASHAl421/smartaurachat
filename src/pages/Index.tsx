@@ -209,7 +209,7 @@ const Index = () => {
           <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-muted">
             <Menu className="h-5 w-5" />
           </button>
-          <h1 className="font-semibold text-foreground tracking-tight">College Policy Assistant</h1>
+          <h1 className="font-semibold text-foreground tracking-tight">Aura Chat</h1>
           <span className="ml-auto text-xs text-muted-foreground hidden sm:flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             Online
@@ -264,7 +264,7 @@ const Index = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
-                placeholder="Ask Policy AI anything…"
+                placeholder="Ask Aura Chat anything…"
                 disabled={sending}
                 rows={1}
                 className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 py-4 pl-3 pr-14 text-[15px] placeholder:text-muted-foreground/70"
@@ -279,7 +279,7 @@ const Index = () => {
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground/80 text-center mt-2.5">
-              Policy AI may make mistakes — verify important matters with college administration.
+              Aura Chat may make mistakes — verify important matters with college administration.
             </p>
           </div>
         </div>
