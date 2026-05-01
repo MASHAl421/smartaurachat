@@ -77,6 +77,25 @@ const Index = () => {
     el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
   }, [input]);
 
+  // Mobile keyboard: track visualViewport so the composer stays above the keyboard.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      // Difference between layout viewport and visual viewport ≈ keyboard height
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardOffset(offset > 80 ? offset : 0);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+
   useEffect(() => { if (user) loadConversations(); }, [user]);
   useEffect(() => {
     if (!activeId) { setMessages([]); return; }
