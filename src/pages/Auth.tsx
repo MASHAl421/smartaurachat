@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import auraLogo from "@/assets/aura-logo.jpeg";
+import auraLogo from "@/assets/aura-logo.png";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -56,7 +56,7 @@ export default function Auth() {
           <img
             src={auraLogo}
             alt="AURA logo"
-            className="inline-block h-16 w-16 rounded-2xl object-cover shadow-elegant mb-4"
+            className="inline-block h-16 w-16 object-contain shadow-elegant mb-4"
           />
           <h1 className="text-3xl font-bold text-foreground">Academic User Rule Assistant</h1>
           <p className="text-muted-foreground mt-2">Sign in to chat with AURA — your AI policy guide</p>

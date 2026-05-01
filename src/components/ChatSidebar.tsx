@@ -2,7 +2,7 @@ import { Plus, LogOut, Trash2, X, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tables } from "@/integrations/supabase/types";
 import { useMemo } from "react";
-import auraLogo from "@/assets/aura-logo.jpeg";
+import auraLogo from "@/assets/aura-logo.png";
 
 interface Props {
   conversations: Tables<"conversations">[];
@@ -61,7 +61,7 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
             <img
               src={auraLogo}
               alt="AURA — Academic User Rule Assistant"
-              className="h-8 w-8 rounded-lg object-cover shadow-sm flex-shrink-0"
+              className="h-8 w-8 object-contain shadow-sm flex-shrink-0"
             />
             <div className="flex flex-col min-w-0 leading-tight">
               <span className="text-sidebar-foreground tracking-tight font-bold font-sans text-lg">AURA</span>
