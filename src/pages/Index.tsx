@@ -449,17 +449,17 @@ const Index = () => {
                   </p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl mx-auto">
                   {SUGGESTIONS.map((s, i) => (
                     <button
                       key={i}
                       onClick={() => setInput(s.text)}
-                      className="text-left p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-secondary/40 hover:-translate-y-0.5 hover:shadow-elegant transition-all duration-200 flex items-start gap-3 group"
+                      className="text-left p-3 sm:p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-secondary/40 hover:-translate-y-0.5 hover:shadow-elegant transition-all duration-200 flex items-center sm:items-start gap-3 group"
                     >
-                      <div className="h-9 w-9 rounded-xl bg-secondary group-hover:bg-primary/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                      <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-secondary group-hover:bg-primary/10 flex items-center justify-center flex-shrink-0 transition-colors">
                         <s.icon className="h-4 w-4 text-primary" />
                       </div>
-                      <span className="text-[14px] text-foreground/90 leading-relaxed">{s.text}</span>
+                      <span className="text-[13px] sm:text-[14px] text-foreground/90 leading-relaxed">{s.text}</span>
                     </button>
                   ))}
                 </div>
