@@ -179,3 +179,35 @@
 .dot-pulse > span { animation: pulse-dot 1.4s infinite ease-in-out both; }
 .dot-pulse > span:nth-child(2) { animation-delay: 0.16s; }
 .dot-pulse > span:nth-child(3) { animation-delay: 0.32s; }
+
+/* TikTok/Facebook-style like pop */
+@keyframes like-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.55) rotate(-12deg); }
+  55%  { transform: scale(0.85) rotate(6deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes dislike-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.55) rotate(12deg); }
+  55%  { transform: scale(0.85) rotate(-6deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.animate-like-pop    { animation: like-pop 0.55s cubic-bezier(.34,1.56,.64,1); }
+.animate-dislike-pop { animation: dislike-pop 0.55s cubic-bezier(.34,1.56,.64,1); }
+
+/* Floating burst label (Good/Bad response) */
+@keyframes burst-float {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+  20%  { opacity: 1; transform: translate(-50%, -10px) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -34px) scale(1); }
+}
+.animate-burst { animation: burst-float 1s ease-out forwards; }
+
+/* Heart particles flying out */
+@keyframes particle-fly {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--px,0), var(--py,-30px)) scale(1); }
+}
+.particle { animation: particle-fly 0.9s ease-out forwards; }

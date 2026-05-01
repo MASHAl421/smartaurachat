@@ -91,16 +91,26 @@ const Index = () => {
     }
     if (lastUserIdx === -1) return;
     const lastUser = messages[lastUserIdx];
-    const trimmed = messages.slice(0, lastUserIdx);
-    // Delete the last assistant message from DB (best-effort: latest assistant msg in this conv)
+    // History up to and INCLUDING the user message we want to re-answer
+    const baseHistory = messages.slice(0, lastUserIdx + 1);
+    const previousAnswer =
+      messages[messages.length - 1]?.role === "assistant"
+        ? messages[messages.length - 1].content
+        : "";
+    // Delete previous assistant message from DB
     const lastAssistant = messages[messages.length - 1];
     if (lastAssistant?.role === "assistant" && lastAssistant.id) {
       await supabase.from("messages").delete().eq("id", lastAssistant.id);
     }
-    setMessages(trimmed);
-    setInput(lastUser.content);
-    // Slight delay to let state settle, then send
-    setTimeout(() => { sendMessage(); }, 0);
+    // Clear suggestions immediately and show thinking dots
+    setSuggestions([]);
+    await sendMessage({
+      overrideText: lastUser.content,
+      baseHistory: messages.slice(0, lastUserIdx), // exclude the user msg (sendMessage re-adds it)
+      skipPersistUser: true,
+      regenerate: true,
+      previousAnswer,
+    });
   }
 
   async function fetchSuggestions(history: Msg[]) {
@@ -124,10 +134,16 @@ const Index = () => {
     }
   }
 
-  async function sendMessage() {
-    const text = input.trim();
+  async function sendMessage(opts?: {
+    overrideText?: string;
+    baseHistory?: Msg[];
+    skipPersistUser?: boolean;
+    regenerate?: boolean;
+    previousAnswer?: string;
+  }) {
+    const text = (opts?.overrideText ?? input).trim();
     if (!text || sending || !user) return;
-    setInput("");
+    if (!opts?.overrideText) setInput("");
     setSending(true);
     setSuggestions([]);
 
@@ -146,14 +162,17 @@ const Index = () => {
       loadConversations();
     }
 
+    const baseMessages = opts?.baseHistory ?? messages;
     const userMsg: Msg = { role: "user", content: text };
-    const newMessages = [...messages, userMsg];
+    const newMessages = [...baseMessages, userMsg];
     setMessages([...newMessages, { role: "assistant", content: "" }]);
 
-    // Persist user message
-    await supabase.from("messages").insert({
-      conversation_id: convId, user_id: user.id, role: "user", content: text,
-    });
+    // Persist user message (skip when regenerating — user msg already in DB)
+    if (!opts?.skipPersistUser) {
+      await supabase.from("messages").insert({
+        conversation_id: convId, user_id: user.id, role: "user", content: text,
+      });
+    }
 
     try {
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`, {
@@ -162,7 +181,11 @@ const Index = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({
+          messages: newMessages,
+          regenerate: !!opts?.regenerate,
+          previousAnswer: opts?.previousAnswer,
+        }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -395,7 +418,7 @@ const Index = () => {
                 className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-32 p-0 py-2 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1"
               />
               <Button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={!input.trim() || sending}
                 size="icon"
                 className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
