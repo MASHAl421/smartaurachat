@@ -296,6 +296,27 @@ const Index = () => {
       />
 
       <main className="flex-1 flex flex-col min-w-0 relative bg-background">
+        {/* Always-visible sidebar toggle when there's no header (e.g. new chat / empty state) */}
+        {!activeId && (
+          <>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden absolute top-3 left-3 z-20 p-2 rounded-md bg-background/80 backdrop-blur hover:bg-muted border border-border/60"
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            {sidebarCollapsed && (
+              <button
+                onClick={() => setSidebarCollapsed(false)}
+                className="hidden md:inline-flex absolute top-3 left-3 z-20 p-2 rounded-md bg-background/80 backdrop-blur hover:bg-muted border border-border/60"
+                aria-label="Open sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            )}
+          </>
+        )}
         {activeId && (
           <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
