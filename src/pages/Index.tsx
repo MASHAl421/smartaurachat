@@ -84,7 +84,18 @@ const Index = () => {
 
   async function loadMessages(id: string) {
     const { data } = await supabase.from("messages").select("*").eq("conversation_id", id).order("created_at");
-    setMessages((data || []).map(m => ({ id: m.id, role: m.role as "user" | "assistant", content: m.content })));
+    const msgs = (data || []).map(m => ({ id: m.id, role: m.role as "user" | "assistant", content: m.content }));
+    setMessages(msgs);
+    // Load feedback for assistant messages
+    const ids = msgs.filter(m => m.role === "assistant" && m.id).map(m => m.id!) ;
+    if (ids.length) {
+      const { data: fb } = await supabase.from("message_feedback").select("message_id, rating").in("message_id", ids);
+      const map: Record<string, "up" | "down"> = {};
+      (fb || []).forEach((r: any) => { map[r.message_id] = r.rating; });
+      setFeedbackMap(map);
+    } else {
+      setFeedbackMap({});
+    }
   }
 
   async function newChat() {
