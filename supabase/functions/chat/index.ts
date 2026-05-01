@@ -436,7 +436,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, mode } = await req.json();
+    const { messages, mode, regenerate, previousAnswer } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
@@ -504,6 +504,12 @@ Deno.serve(async (req) => {
 
     const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
+    if (regenerate) {
+      convo.push({
+        role: "system",
+        content: `The user has requested a regenerated answer. Your previous answer was:\n\n"""${(previousAnswer || "").slice(0, 4000)}"""\n\nProduce a NEW answer that is meaningfully different from the previous one — try a different angle, structure, examples, wording, or level of detail — while remaining accurate and on-topic. Do not simply rephrase the previous answer.`,
+      });
+    }
     const MODEL = "google/gemini-2.5-pro";
     const shouldSearchFirst = shouldForceSearch(latestUserMessage);
 
@@ -586,7 +592,7 @@ Deno.serve(async (req) => {
       messages: convo,
       stream: true,
       max_tokens: 2048,
-      temperature: 0.7,
+      temperature: regenerate ? 0.95 : 0.7,
     }, LOVABLE_API_KEY);
     return new Response(finalResp.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
   } catch (e) {
