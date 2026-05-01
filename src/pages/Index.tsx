@@ -27,6 +27,7 @@ const Index = () => {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const skipLoadRef = useRef<string | null>(null); // conv id to skip auto-loading (just created locally)
 
@@ -202,13 +203,20 @@ const Index = () => {
         userEmail={user.email}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => setSidebarCollapsed(v => !v)}
       />
 
       <main className="flex-1 flex flex-col min-w-0 relative bg-background">
         <header className="h-14 border-b border-border/70 flex items-center px-4 gap-3 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted">
+          <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
             <Menu className="h-5 w-5" />
           </button>
+          {sidebarCollapsed && (
+            <button onClick={() => setSidebarCollapsed(false)} className="hidden md:inline-flex p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
+              <Menu className="h-5 w-5" />
+            </button>
+          )}
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
