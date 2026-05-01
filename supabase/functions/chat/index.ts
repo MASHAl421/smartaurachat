@@ -504,6 +504,12 @@ Deno.serve(async (req) => {
 
     const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
+    if (regenerate) {
+      convo.push({
+        role: "system",
+        content: `The user has requested a regenerated answer. Your previous answer was:\n\n"""${(previousAnswer || "").slice(0, 4000)}"""\n\nProduce a NEW answer that is meaningfully different from the previous one — try a different angle, structure, examples, wording, or level of detail — while remaining accurate and on-topic. Do not simply rephrase the previous answer.`,
+      });
+    }
     const MODEL = "google/gemini-2.5-pro";
     const shouldSearchFirst = shouldForceSearch(latestUserMessage);
 
