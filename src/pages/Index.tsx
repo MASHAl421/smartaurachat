@@ -214,12 +214,6 @@ const Index = () => {
           const step = Math.max(1, Math.ceil(remaining / 18));
           revealed = Math.min(fullText.length, revealed + step);
           setMessages([...newMessages, { role: "assistant", content: fullText.slice(0, revealed) }]);
-          const el = scrollRef.current;
-          if (el) {
-            // Only auto-scroll if user is already near the bottom (don't fight manual scroll-up)
-            const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
-            if (nearBottom) el.scrollTop = el.scrollHeight;
-          }
         }
         if (!streamDone || revealed < fullText.length) {
           requestAnimationFrame(tick);
