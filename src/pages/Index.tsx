@@ -384,9 +384,19 @@ const Index = () => {
       const assistantText = fullText;
       // Persist assistant message (even if user aborted, save partial)
       if (assistantText) {
-        await supabase.from("messages").insert({
+        const { data: insertedAsst } = await supabase.from("messages").insert({
           conversation_id: convId, user_id: user.id, role: "assistant", content: assistantText,
-        });
+        }).select().single();
+        if (insertedAsst?.id) {
+          // Attach id to the last assistant message in state so feedback can persist
+          setMessages((prev) => {
+            const next = [...prev];
+            for (let i = next.length - 1; i >= 0; i--) {
+              if (next[i].role === "assistant") { next[i] = { ...next[i], id: insertedAsst.id }; break; }
+            }
+            return next;
+          });
+        }
         if (!aborted) {
           // Fire-and-forget: fetch follow-up suggestions
           fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
