@@ -525,7 +525,7 @@ Deno.serve(async (req) => {
     }
 
     const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
-    const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
+    const convo: any[] = [{ role: "system", content: buildSystemPrompt(latestUserMessage) }, ...messages];
     if (regenerate) {
       convo.push({
         role: "system",
