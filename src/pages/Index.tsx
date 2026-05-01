@@ -223,6 +223,8 @@ const Index = () => {
     }
 
     try {
+      const controller = new AbortController();
+      abortRef.current = controller;
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`, {
         method: "POST",
         headers: {
@@ -234,6 +236,7 @@ const Index = () => {
           regenerate: !!opts?.regenerate,
           previousAnswer: opts?.previousAnswer,
         }),
+        signal: controller.signal,
       });
 
       if (!resp.ok || !resp.body) {
