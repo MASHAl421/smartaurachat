@@ -424,11 +424,20 @@ const TOOLS = [{
   },
 }];
 
-async function callGateway(body: unknown, apiKey: string) {
-  return fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+const OPENROUTER_MODEL = "tencent/hy3-preview:free";
+
+async function callGateway(body: any, apiKey: string) {
+  // Force OpenRouter model regardless of caller-specified model
+  const payload = { ...body, model: OPENROUTER_MODEL };
+  return fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://smartaurachat.lovable.app",
+      "X-Title": "Smart Aura Chat",
+    },
+    body: JSON.stringify(payload),
   });
 }
 
