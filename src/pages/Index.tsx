@@ -751,6 +751,35 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      {/* Rename chat dialog */}
+      <Dialog open={!!renameTarget} onOpenChange={(o) => { if (!o) setRenameTarget(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Rename chat</DialogTitle>
+          </DialogHeader>
+          <Input
+            autoFocus
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { e.preventDefault(); submitRename(); }
+              else if (e.key === "Escape") { e.preventDefault(); setRenameTarget(null); }
+            }}
+            placeholder="Chat name"
+            maxLength={120}
+          />
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="ghost" onClick={() => setRenameTarget(null)}>Cancel</Button>
+            <Button
+              onClick={submitRename}
+              disabled={!renameValue.trim() || renameValue.trim() === renameTarget?.title}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
