@@ -393,7 +393,7 @@ const Index = () => {
           </>
         )}
         {activeId && (
-          <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
+          <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/95 backdrop-blur-xl flex-shrink-0 z-10">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
               <Menu className="h-5 w-5" />
             </button>
@@ -432,34 +432,34 @@ const Index = () => {
         )}
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className={`max-w-3xl mx-auto px-4 sm:px-8 ${messages.length === 0 ? "min-h-full flex flex-col justify-center py-8" : "py-6 sm:py-10 space-y-6"}`}>
+          <div className={`max-w-3xl mx-auto px-4 sm:px-8 ${messages.length === 0 ? "min-h-full flex flex-col justify-center py-4 sm:py-8" : "py-6 sm:py-10 space-y-6"}`}>
             {messages.length === 0 ? (
               <div className="animate-fade-in-up">
-                <div className="text-center mb-10">
+                <div className="text-center mb-5 sm:mb-10">
                   <img
                     src={auraLogo}
                     alt="AURA logo"
-                    className="inline-block h-20 w-20 object-contain mb-5"
+                    className="inline-block h-14 w-14 sm:h-20 sm:w-20 object-contain mb-3 sm:mb-5"
                   />
-                  <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
+                  <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
                     Hey there! How can I help you today?
                   </h2>
-                  <p className="text-muted-foreground text-[15px] max-w-md mx-auto">
+                  <p className="text-muted-foreground text-[14px] sm:text-[15px] max-w-md mx-auto">
                     Ask anything about college policies, conduct, or academics.
                   </p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl mx-auto">
                   {SUGGESTIONS.map((s, i) => (
                     <button
                       key={i}
                       onClick={() => setInput(s.text)}
-                      className="text-left p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-secondary/40 hover:-translate-y-0.5 hover:shadow-elegant transition-all duration-200 flex items-start gap-3 group"
+                      className="text-left p-3 sm:p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-secondary/40 hover:-translate-y-0.5 hover:shadow-elegant transition-all duration-200 flex items-center sm:items-start gap-3 group"
                     >
-                      <div className="h-9 w-9 rounded-xl bg-secondary group-hover:bg-primary/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                      <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-secondary group-hover:bg-primary/10 flex items-center justify-center flex-shrink-0 transition-colors">
                         <s.icon className="h-4 w-4 text-primary" />
                       </div>
-                      <span className="text-[14px] text-foreground/90 leading-relaxed">{s.text}</span>
+                      <span className="text-[13px] sm:text-[14px] text-foreground/90 leading-relaxed">{s.text}</span>
                     </button>
                   ))}
                 </div>
@@ -508,7 +508,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-5 px-3 sm:px-6">
+        <div className="bg-gradient-to-t from-background via-background to-transparent pt-2 sm:pt-6 pb-3 sm:pb-5 px-3 sm:px-6 flex-shrink-0">
           <div className="max-w-3xl mx-auto">
             <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all pl-5 pr-1.5 py-1.5 flex items-end gap-2">
               <Textarea
