@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, Square, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2 } from "lucide-react";
+import { Menu, ArrowUp, Square, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2, Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
 import auraLogo from "@/assets/aura-logo.png";
 import { toast } from "sonner";
 import {
@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+type Attachment = { url: string; name: string; type: string };
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
