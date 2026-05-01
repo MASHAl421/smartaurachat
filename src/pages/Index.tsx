@@ -328,13 +328,16 @@ const Index = () => {
           fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
         }
       } else if (aborted) {
-        // Stopped before any token arrived — remove the empty assistant placeholder
-        setMessages(newMessages);
+        // Stopped before any token arrived — drop user msg too so the next prompt
+        // doesn't get answered together with this orphaned one.
+        if (userMsgId) await supabase.from("messages").delete().eq("id", userMsgId);
+        setMessages(baseMessages);
       }
     } catch (err: any) {
       if (err?.name === "AbortError") {
-        // user stopped before stream began — drop empty assistant placeholder
-        setMessages(newMessages);
+        // Stopped before any response started — clean up the orphan user msg.
+        if (userMsgId) await supabase.from("messages").delete().eq("id", userMsgId);
+        setMessages(baseMessages);
       } else {
         console.error(err);
         toast.error("Connection error");
