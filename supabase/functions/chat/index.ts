@@ -430,9 +430,71 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages } = await req.json();
+    const { messages, mode } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
+
+    // ── Follow-up suggestions mode (non-streaming, JSON) ──
+    if (mode === "suggestions") {
+      const trimmed = (messages || []).slice(-6); // last few turns is enough context
+      const sugResp = await callGateway({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You generate exactly 3 short follow-up question suggestions a student might tap next, based on the conversation so far. Focus on KPK Government College policies, admissions, conduct, penalties, dress code, fees, quotas, etc. Each suggestion must be a natural question under 9 words, no numbering, no quotes.",
+          },
+          ...trimmed,
+        ],
+        stream: false,
+        max_tokens: 200,
+        temperature: 0.7,
+        tools: [{
+          type: "function",
+          function: {
+            name: "return_suggestions",
+            description: "Return 3 short follow-up question suggestions.",
+            parameters: {
+              type: "object",
+              properties: {
+                suggestions: {
+                  type: "array",
+                  items: { type: "string" },
+                  minItems: 3,
+                  maxItems: 3,
+                },
+              },
+              required: ["suggestions"],
+              additionalProperties: false,
+            },
+          },
+        }],
+        tool_choice: { type: "function", function: { name: "return_suggestions" } },
+      }, LOVABLE_API_KEY);
+
+      if (!sugResp.ok) {
+        return new Response(JSON.stringify({ suggestions: [] }), {
+          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const sugData = await sugResp.json();
+      const call = sugData.choices?.[0]?.message?.tool_calls?.[0];
+      let suggestions: string[] = [];
+      try {
+        const args = JSON.parse(call?.function?.arguments || "{}");
+        if (Array.isArray(args.suggestions)) {
+          suggestions = args.suggestions
+            .filter((s: unknown) => typeof s === "string")
+            .map((s: string) => s.trim())
+            .filter(Boolean)
+            .slice(0, 3);
+        }
+      } catch { /* ignore */ }
+      return new Response(JSON.stringify({ suggestions }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];

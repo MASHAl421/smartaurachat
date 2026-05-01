@@ -28,6 +28,8 @@ const Index = () => {
   const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const skipLoadRef = useRef<string | null>(null); // conv id to skip auto-loading (just created locally)
 
@@ -55,6 +57,7 @@ const Index = () => {
   async function newChat() {
     setActiveId(null);
     setMessages([]);
+    setSuggestions([]);
     setSidebarOpen(false);
   }
 
@@ -64,11 +67,33 @@ const Index = () => {
     loadConversations();
   }
 
+  async function fetchSuggestions(history: Msg[]) {
+    try {
+      setLoadingSuggestions(true);
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ mode: "suggestions", messages: history }),
+      });
+      if (!resp.ok) { setSuggestions([]); return; }
+      const data = await resp.json();
+      setSuggestions(Array.isArray(data.suggestions) ? data.suggestions.slice(0, 3) : []);
+    } catch {
+      setSuggestions([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  }
+
   async function sendMessage() {
     const text = input.trim();
     if (!text || sending || !user) return;
     setInput("");
     setSending(true);
+    setSuggestions([]);
 
     let convId = activeId;
     // Create conversation if first message
@@ -177,6 +202,8 @@ const Index = () => {
         await supabase.from("messages").insert({
           conversation_id: convId, user_id: user.id, role: "assistant", content: assistantText,
         });
+        // Fire-and-forget: fetch follow-up suggestions
+        fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
       }
     } catch (err) {
       console.error(err);
@@ -186,6 +213,7 @@ const Index = () => {
       setSending(false);
     }
   }
+
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -259,6 +287,29 @@ const Index = () => {
                   streaming={sending && i === messages.length - 1 && m.role === "assistant"}
                 />
               ))
+            )}
+
+            {/* Follow-up suggestion chips */}
+            {!sending && messages.length > 0 && messages[messages.length - 1]?.role === "assistant" && (suggestions.length > 0 || loadingSuggestions) && (
+              <div className="pt-2 flex flex-wrap gap-2 animate-fade-in-up">
+                {loadingSuggestions && suggestions.length === 0 ? (
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className="h-8 w-40 rounded-full bg-muted animate-pulse" />
+                    ))}
+                  </>
+                ) : (
+                  suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setInput(s); }}
+                      className="text-[13px] px-3.5 py-1.5 rounded-full border border-border bg-card hover:border-primary/40 hover:bg-secondary/50 text-foreground/85 transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))
+                )}
+              </div>
             )}
           </div>
         </div>
