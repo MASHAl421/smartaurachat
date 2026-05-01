@@ -316,13 +316,15 @@ const Index = () => {
       });
 
       const assistantText = fullText;
-      // Persist assistant message
+      // Persist assistant message (even if user aborted, save partial)
       if (assistantText) {
         await supabase.from("messages").insert({
           conversation_id: convId, user_id: user.id, role: "assistant", content: assistantText,
         });
-        // Fire-and-forget: fetch follow-up suggestions
-        fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
+        if (!aborted) {
+          // Fire-and-forget: fetch follow-up suggestions
+          fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
+        }
       }
     } catch (err: any) {
       if (err?.name === "AbortError") {
