@@ -13,9 +13,9 @@ export const ChatMessage = ({ role, content, streaming }: Props) => {
   if (isUser) {
     return (
       <div className="flex justify-end animate-fade-in-up">
-        <div className="max-w-[92%] sm:max-w-[80%]">
-          <div className="bg-foreground text-background rounded-2xl rounded-tr-sm px-4 py-2.5 sm:px-5 sm:py-3">
-            <p className="whitespace-pre-wrap leading-relaxed text-[14.5px] sm:text-[15px] font-sans">{content}</p>
+        <div className="max-w-[85%] sm:max-w-[75%]">
+          <div className="bg-secondary text-secondary-foreground rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3">
+            <p className="whitespace-pre-wrap leading-relaxed text-[14.5px] sm:text-[15px]">{content}</p>
           </div>
         </div>
       </div>
