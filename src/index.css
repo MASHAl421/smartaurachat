@@ -2,100 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Aura Chat — Editorial / Educational design system
-   High-contrast ink-on-paper aesthetic inspired by academic publishing
-   (Stripe Press, MIT Press, NYT, Linear docs). */
+/* Aura Chat — Clean conversational UI inspired by DeepSeek
+   White surfaces, soft blue accent, comfortable reading typography. */
 
 @layer base {
   :root {
-    /* Paper & ink */
-    --background: 40 33% 98%;          /* warm paper */
-    --foreground: 220 25% 8%;          /* deep ink */
+    --background: 0 0% 100%;
+    --foreground: 220 20% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 8%;
+    --card-foreground: 220 20% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 8%;
+    --popover-foreground: 220 20% 14%;
 
-    /* Editorial accent — deep scholarly blue */
-    --primary: 222 80% 22%;
-    --primary-foreground: 40 33% 98%;
-    --primary-glow: 222 70% 40%;
+    /* Indigo / blue accent like DeepSeek */
+    --primary: 230 85% 62%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 230 85% 72%;
 
-    --secondary: 40 20% 94%;
-    --secondary-foreground: 220 25% 12%;
+    /* Soft lavender — used for user bubble & active sidebar item */
+    --secondary: 230 60% 96%;
+    --secondary-foreground: 230 50% 30%;
 
-    --muted: 40 18% 95%;
-    --muted-foreground: 220 10% 38%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 46%;
 
-    /* Marker yellow — used for highlights, very sparingly */
-    --accent: 45 95% 55%;
-    --accent-foreground: 220 25% 8%;
+    --accent: 230 60% 96%;
+    --accent-foreground: 230 50% 30%;
 
-    --destructive: 0 70% 45%;
-    --destructive-foreground: 40 33% 98%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 30 12% 86%;
-    --input: 30 12% 86%;
-    --ring: 222 80% 22%;
+    --border: 220 14% 92%;
+    --input: 220 14% 92%;
+    --ring: 230 85% 62%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --gradient-hero: linear-gradient(135deg, hsl(222 80% 22%) 0%, hsl(222 70% 40%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(40 33% 98%) 0%, hsl(40 25% 95%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(230 85% 62%) 0%, hsl(250 80% 65%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
 
-    --shadow-soft: 0 1px 2px 0 hsl(220 25% 8% / 0.05), 0 1px 1px -1px hsl(220 25% 8% / 0.04);
-    --shadow-elegant: 0 4px 20px -8px hsl(220 25% 8% / 0.15);
-    --shadow-glow: 0 0 0 1px hsl(222 80% 22% / 0.08);
+    --shadow-soft: 0 1px 2px 0 hsl(220 20% 14% / 0.04), 0 1px 1px -1px hsl(220 20% 14% / 0.04);
+    --shadow-elegant: 0 8px 24px -8px hsl(220 20% 14% / 0.08);
+    --shadow-glow: 0 0 0 4px hsl(230 85% 62% / 0.08);
 
-    --sidebar-background: 40 25% 96%;
-    --sidebar-foreground: 220 25% 12%;
-    --sidebar-primary: 222 80% 22%;
-    --sidebar-primary-foreground: 40 33% 98%;
-    --sidebar-accent: 40 20% 92%;
-    --sidebar-accent-foreground: 220 25% 12%;
-    --sidebar-border: 30 12% 84%;
-    --sidebar-ring: 222 80% 22%;
+    /* Sidebar — soft lavender like DeepSeek */
+    --sidebar-background: 230 40% 97%;
+    --sidebar-foreground: 220 20% 18%;
+    --sidebar-primary: 230 85% 62%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 60% 92%;
+    --sidebar-accent-foreground: 230 60% 35%;
+    --sidebar-border: 230 25% 90%;
+    --sidebar-ring: 230 85% 62%;
   }
 
   .dark {
-    --background: 220 25% 7%;
-    --foreground: 40 30% 96%;
+    --background: 220 20% 9%;
+    --foreground: 220 14% 95%;
 
-    --card: 220 22% 10%;
-    --card-foreground: 40 30% 96%;
+    --card: 220 18% 12%;
+    --card-foreground: 220 14% 95%;
 
-    --popover: 220 22% 10%;
-    --popover-foreground: 40 30% 96%;
+    --popover: 220 18% 12%;
+    --popover-foreground: 220 14% 95%;
 
-    --primary: 45 95% 60%;             /* in dark mode, marker yellow takes the lead */
-    --primary-foreground: 220 25% 7%;
-    --primary-glow: 45 95% 70%;
+    --primary: 230 85% 68%;
+    --primary-foreground: 220 20% 9%;
+    --primary-glow: 230 85% 78%;
 
-    --secondary: 220 18% 14%;
-    --secondary-foreground: 40 30% 96%;
+    --secondary: 230 30% 20%;
+    --secondary-foreground: 230 60% 88%;
 
-    --muted: 220 18% 13%;
+    --muted: 220 15% 16%;
     --muted-foreground: 220 10% 65%;
 
-    --accent: 222 70% 60%;
-    --accent-foreground: 220 25% 7%;
+    --accent: 230 30% 20%;
+    --accent-foreground: 230 60% 88%;
 
     --destructive: 0 70% 55%;
-    --destructive-foreground: 40 30% 96%;
+    --destructive-foreground: 220 14% 95%;
 
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 45 95% 60%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 230 85% 68%;
 
-    --sidebar-background: 220 25% 8%;
-    --sidebar-foreground: 40 30% 92%;
-    --sidebar-primary: 45 95% 60%;
-    --sidebar-primary-foreground: 220 25% 7%;
-    --sidebar-accent: 220 18% 12%;
-    --sidebar-accent-foreground: 40 30% 96%;
-    --sidebar-border: 220 15% 16%;
+    --sidebar-background: 220 20% 11%;
+    --sidebar-foreground: 220 14% 90%;
+    --sidebar-primary: 230 85% 68%;
+    --sidebar-primary-foreground: 220 20% 9%;
+    --sidebar-accent: 220 18% 17%;
+    --sidebar-accent-foreground: 230 60% 88%;
+    --sidebar-border: 220 15% 18%;
   }
 }
 
@@ -110,7 +109,7 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
   h1, h2, h3, h4 {
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: 'Inter', system-ui, sans-serif;
     letter-spacing: -0.02em;
     font-weight: 600;
   }
@@ -118,7 +117,7 @@
     font-family: 'JetBrains Mono', ui-monospace, monospace;
   }
   ::selection {
-    background: hsl(var(--accent) / 0.4);
+    background: hsl(var(--primary) / 0.18);
     color: hsl(var(--foreground));
   }
 }
@@ -130,49 +129,38 @@
   .shadow-elegant { box-shadow: var(--shadow-elegant); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
 
-  .font-serif { font-family: 'Source Serif 4', Georgia, serif; }
-  .font-sans { font-family: 'Inter', system-ui, sans-serif; }
-  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
-
-  /* Editorial reading typography for assistant messages */
+  /* Reading typography for assistant messages */
   .prose-chat {
-    @apply text-foreground text-[16px];
-    font-family: 'Source Serif 4', Georgia, serif;
-    line-height: 1.75;
+    @apply text-foreground text-[15px];
+    line-height: 1.7;
   }
   .prose-chat h1, .prose-chat h2, .prose-chat h3, .prose-chat h4 {
-    font-family: 'Source Serif 4', Georgia, serif;
     @apply font-semibold tracking-tight text-foreground;
   }
   .prose-chat h1 { @apply text-2xl mt-6 mb-3; }
-  .prose-chat h2 { @apply text-xl mt-6 mb-2.5 pb-1 border-b border-border; }
+  .prose-chat h2 { @apply text-xl mt-6 mb-2.5; }
   .prose-chat h3 { @apply text-lg mt-5 mb-2; }
-  .prose-chat p { @apply mb-4; }
-  .prose-chat ul { @apply list-disc pl-6 mb-4 space-y-2 marker:text-muted-foreground; }
-  .prose-chat ol { @apply list-decimal pl-6 mb-4 space-y-2 marker:text-muted-foreground marker:font-sans marker:font-medium; }
-  .prose-chat li { @apply pl-1; }
+  .prose-chat p { @apply mb-3.5; }
+  .prose-chat ul { @apply list-disc pl-5 mb-3.5 space-y-1.5 marker:text-muted-foreground; }
+  .prose-chat ol { @apply list-decimal pl-5 mb-3.5 space-y-1.5 marker:text-muted-foreground; }
   .prose-chat strong { @apply font-semibold text-foreground; }
   .prose-chat em { @apply italic; }
   .prose-chat code {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    @apply bg-muted px-1.5 py-0.5 rounded text-[13px] text-foreground border border-border/60;
+    @apply bg-muted px-1.5 py-0.5 rounded text-[13px] text-foreground;
   }
   .prose-chat pre {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    @apply bg-foreground text-background p-4 rounded-lg overflow-x-auto my-4 text-[13px] leading-relaxed;
+    @apply bg-foreground text-background p-4 rounded-xl overflow-x-auto my-4 text-[13px] leading-relaxed;
   }
-  .prose-chat pre code { @apply bg-transparent border-0 p-0 text-background; }
+  .prose-chat pre code { @apply bg-transparent p-0 text-background; }
   .prose-chat blockquote {
-    @apply border-l-4 border-foreground pl-5 my-5 text-foreground/80 italic;
-    font-family: 'Source Serif 4', Georgia, serif;
+    @apply border-l-4 border-primary/40 pl-4 my-4 text-muted-foreground italic;
   }
   .prose-chat a {
-    @apply text-primary font-medium underline decoration-primary/30 underline-offset-[3px] decoration-1 hover:decoration-primary transition-colors;
+    @apply text-primary font-medium underline decoration-primary/30 underline-offset-[3px] hover:decoration-primary transition-colors;
   }
   .prose-chat hr { @apply my-6 border-border; }
   .prose-chat table {
-    font-family: 'Inter', sans-serif;
-    @apply w-full border-collapse my-5 text-[14px];
+    @apply w-full border-collapse my-4 text-[14px];
   }
   .prose-chat th, .prose-chat td { @apply border border-border px-3 py-2 text-left align-top; }
   .prose-chat th { @apply bg-muted font-semibold text-foreground; }
