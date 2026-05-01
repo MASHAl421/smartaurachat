@@ -406,10 +406,8 @@ function buildSearchQueries(input: string): string[] {
   const clean = input.replace(/\s+/g, " ").trim();
   return Array.from(new Set([
     clean,
-    `${clean} official`,
     `site:admission.hed.gkp.pk ${clean}`,
-    `site:hed.gkp.pk ${clean}`,
-  ])).slice(0, 4);
+  ])).slice(0, 2);
 }
 
 const TOOLS = [{
@@ -523,7 +521,6 @@ Deno.serve(async (req) => {
         content: `The user has requested a regenerated answer. Your previous answer was:\n\n"""${(previousAnswer || "").slice(0, 4000)}"""\n\nProduce a NEW answer that is meaningfully different from the previous one — try a different angle, structure, examples, wording, or level of detail — while remaining accurate and on-topic. Do not simply rephrase the previous answer.`,
       });
     }
-    const MODEL = "google/gemini-2.5-pro";
     const shouldSearchFirst = shouldForceSearch(latestUserMessage);
 
     if (shouldSearchFirst) {
@@ -539,8 +536,9 @@ Deno.serve(async (req) => {
     const finalResp = await callGateway({
       messages: convo,
       stream: true,
-      max_tokens: 1024,
+      max_tokens: 650,
       temperature: regenerate ? 0.95 : 0.6,
+      reasoning: { effort: "none", exclude: true },
     }, LOVABLE_API_KEY);
 
     if (!finalResp.ok) {
