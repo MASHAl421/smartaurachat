@@ -251,17 +251,17 @@ const Index = () => {
       />
 
       <main className="flex-1 flex flex-col min-w-0 relative bg-background">
-        <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
-            <Menu className="h-5 w-5" />
-          </button>
-          {sidebarCollapsed && (
-            <button onClick={() => setSidebarCollapsed(false)} className="hidden md:inline-flex p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
+        {activeId && (
+          <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
               <Menu className="h-5 w-5" />
             </button>
-          )}
+            {sidebarCollapsed && (
+              <button onClick={() => setSidebarCollapsed(false)} className="hidden md:inline-flex p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
+                <Menu className="h-5 w-5" />
+              </button>
+            )}
 
-          {activeId && (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-muted text-sm font-medium text-foreground/90 max-w-[60%] truncate outline-none">
                 <span className="truncate">
@@ -278,17 +278,17 @@ const Index = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
 
-          <button
-            onClick={newChat}
-            className="ml-auto p-1.5 rounded-md hover:bg-muted text-foreground/80"
-            aria-label="New chat"
-            title="New chat"
-          >
-            <SquarePen className="h-[18px] w-[18px]" />
-          </button>
-        </header>
+            <button
+              onClick={newChat}
+              className="ml-auto p-1.5 rounded-md hover:bg-muted text-foreground/80"
+              aria-label="New chat"
+              title="New chat"
+            >
+              <SquarePen className="h-[18px] w-[18px]" />
+            </button>
+          </header>
+        )}
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
           <div className={`max-w-3xl mx-auto px-4 sm:px-8 ${messages.length === 0 ? "min-h-full flex flex-col justify-center py-8" : "py-6 sm:py-10 space-y-6"}`}>
