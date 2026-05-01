@@ -1,4 +1,4 @@
-import { Plus, LogOut, Trash2, X, PanelLeft, Sparkles } from "lucide-react";
+import { Plus, LogOut, Trash2, X, PanelLeft, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tables } from "@/integrations/supabase/types";
 import { useMemo } from "react";
@@ -57,8 +57,8 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
         {/* Brand */}
         <div className="px-4 pt-4 pb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-gradient-hero flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
+            <div className="h-8 w-8 rounded-lg bg-gradient-hero flex items-center justify-center shadow-sm">
+              <GraduationCap className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-sidebar-foreground tracking-tight font-bold font-sans text-xl opacity-100">Aura Chat</span>
           </div>
