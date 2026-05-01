@@ -474,7 +474,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-5 px-3 sm:px-6">
+        <div className="bg-gradient-to-t from-background via-background to-transparent pt-2 pb-3 sm:pb-5 px-3 sm:px-6">
           <div className="max-w-3xl mx-auto">
             <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all pl-5 pr-1.5 py-1.5 flex items-end gap-2">
               <Textarea
