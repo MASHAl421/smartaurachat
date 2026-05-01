@@ -438,7 +438,7 @@ const Index = () => {
                 placeholder="Message AURA"
                 disabled={sending}
                 rows={1}
-                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-32 p-0 py-2 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1"
+                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none resize-none max-h-32 p-0 py-2 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 outline-none"
               />
               <Button
                 onClick={() => sendMessage()}
