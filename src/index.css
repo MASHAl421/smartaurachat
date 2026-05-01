@@ -214,9 +214,8 @@
 
 /* ── Thinking indicator: gradient sweep on logo + rotating label ── */
 @keyframes thinking-sweep {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0%   { background-position: 200% 50%; }
+  100% { background-position: -200% 50%; }
 }
 @keyframes thinking-spin {
   from { transform: rotate(0deg); }
@@ -226,39 +225,26 @@
   0%   { opacity: 0; transform: translateY(6px); filter: blur(4px); }
   100% { opacity: 1; transform: translateY(0);    filter: blur(0); }
 }
-.thinking-logo-mask {
-  -webkit-mask-image: var(--logo-mask);
-          mask-image: var(--logo-mask);
-  -webkit-mask-size: contain;
-          mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-          mask-position: center;
-  background: linear-gradient(
-    90deg,
-    hsl(230 85% 62%) 0%,
-    hsl(280 85% 65%) 25%,
-    hsl(330 85% 62%) 50%,
-    hsl(280 85% 65%) 75%,
-    hsl(230 85% 62%) 100%
-  );
-  background-size: 300% 300%;
-  animation: thinking-sweep 2.4s ease-in-out infinite;
-}
+
+/* Laser-light shimmer: dark base, bright highlight sweeps across */
 .thinking-text-shimmer {
-  background: linear-gradient(
-    90deg,
-    hsl(var(--muted-foreground)) 0%,
-    hsl(230 85% 55%) 35%,
-    hsl(280 80% 60%) 50%,
-    hsl(230 85% 55%) 65%,
-    hsl(var(--muted-foreground)) 100%
+  background-image: linear-gradient(
+    100deg,
+    hsl(220 15% 45%) 0%,
+    hsl(220 15% 45%) 40%,
+    hsl(0 0% 100%) 50%,
+    hsl(220 15% 45%) 60%,
+    hsl(220 15% 45%) 100%
   );
   background-size: 200% 100%;
+  background-repeat: no-repeat;
+  background-position: 200% 50%;
   -webkit-background-clip: text;
           background-clip: text;
+  color: transparent;
   -webkit-text-fill-color: transparent;
-  animation: thinking-sweep 2.6s linear infinite;
+  animation: thinking-sweep 2.4s linear infinite;
+  font-style: italic;
 }
 .thinking-text-in { animation: thinking-text-in 0.45s ease-out; }
+
