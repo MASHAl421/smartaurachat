@@ -1,4 +1,4 @@
-import { Plus, LogOut, Trash2, X, PanelLeft } from "lucide-react";
+import { Plus, LogOut, Trash2, X, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tables } from "@/integrations/supabase/types";
 import { useMemo } from "react";
@@ -80,7 +80,7 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
             className="hidden md:inline-flex text-sidebar-foreground/60 hover:text-sidebar-foreground p-1 rounded-md hover:bg-sidebar-accent"
             aria-label="Collapse sidebar"
           >
-            <PanelLeft className="h-4 w-4" />
+            <Menu className="h-5 w-5" />
           </button>
         </div>
 
