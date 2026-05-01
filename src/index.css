@@ -211,3 +211,54 @@
   100% { opacity: 0; transform: translate(var(--px,0), var(--py,-30px)) scale(1); }
 }
 .particle { animation: particle-fly 0.9s ease-out forwards; }
+
+/* ── Thinking indicator: gradient sweep on logo + rotating label ── */
+@keyframes thinking-sweep {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes thinking-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes thinking-text-in {
+  0%   { opacity: 0; transform: translateY(6px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+.thinking-logo-mask {
+  -webkit-mask-image: var(--logo-mask);
+          mask-image: var(--logo-mask);
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  background: linear-gradient(
+    90deg,
+    hsl(230 85% 62%) 0%,
+    hsl(280 85% 65%) 25%,
+    hsl(330 85% 62%) 50%,
+    hsl(280 85% 65%) 75%,
+    hsl(230 85% 62%) 100%
+  );
+  background-size: 300% 300%;
+  animation: thinking-sweep 2.4s ease-in-out infinite;
+}
+.thinking-text-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted-foreground)) 0%,
+    hsl(230 85% 55%) 35%,
+    hsl(280 80% 60%) 50%,
+    hsl(230 85% 55%) 65%,
+    hsl(var(--muted-foreground)) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: thinking-sweep 2.6s linear infinite;
+}
+.thinking-text-in { animation: thinking-text-in 0.45s ease-out; }
