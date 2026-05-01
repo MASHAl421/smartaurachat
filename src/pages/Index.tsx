@@ -551,7 +551,7 @@ const Index = () => {
               )}
             </div>
             <p className="text-[11px] text-muted-foreground/80 text-center mt-3">
-              AI-generated, for reference only
+              Aura is AI and can make mistakes.
             </p>
           </div>
         </div>
