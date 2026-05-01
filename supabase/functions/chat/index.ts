@@ -436,7 +436,7 @@ Deno.serve(async (req) => {
 
     const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
-    const MODEL = "google/gemini-3-flash-preview";
+    const MODEL = "google/gemini-2.5-pro";
     const shouldSearchFirst = shouldForceSearch(latestUserMessage);
 
     if (shouldSearchFirst) {
