@@ -481,10 +481,19 @@ const Index = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
+                onScroll={(e) => {
+                  // Show scrollbar briefly while user is scrolling (esp. mobile/touch).
+                  const el = e.currentTarget;
+                  el.classList.add("is-scrolling");
+                  window.clearTimeout((el as any)._scrollHideTimer);
+                  (el as any)._scrollHideTimer = window.setTimeout(() => {
+                    el.classList.remove("is-scrolling");
+                  }, 800);
+                }}
                 placeholder="Message AURA"
                 disabled={sending}
                 rows={1}
-                className="border-0 bg-transparent focus-visible:ring-0 resize-none p-0 py-2 text-[15px] leading-5 placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 overflow-hidden"
+                className="input-scroll border-0 bg-transparent focus-visible:ring-0 resize-none p-0 py-2 text-[15px] leading-5 placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 overflow-hidden"
               />
               <Button
                 onClick={() => sendMessage()}
