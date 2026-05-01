@@ -226,27 +226,36 @@
   100% { opacity: 1; transform: translateY(0);    filter: blur(0); }
 }
 
-/* Laser-light shimmer: dark base, bright highlight sweeps across */
+/* Laser-light shimmer: black text with a thin bright scan moving across */
 .thinking-text-shimmer {
+  position: relative;
+  display: inline-block;
+  color: hsl(var(--foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  font-style: italic;
+}
+.thinking-text-shimmer::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background-image: linear-gradient(
     100deg,
-    hsl(220 15% 45%) 0%,
-    hsl(220 15% 45%) 40%,
-    hsl(230 90% 60%) 48%,
+    transparent 0%,
+    transparent 47%,
     hsl(0 0% 100%) 50%,
-    hsl(280 90% 65%) 52%,
-    hsl(220 15% 45%) 60%,
-    hsl(220 15% 45%) 100%
-  ) !important;
-  background-size: 200% 100% !important;
-  background-repeat: no-repeat !important;
-  background-position: 200% 50%;
-  -webkit-background-clip: text !important;
-          background-clip: text !important;
-  color: transparent !important;
-  -webkit-text-fill-color: transparent !important;
-  animation: thinking-sweep 2.4s linear infinite;
-  font-style: italic;
+    transparent 53%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  background-position: 180% 50%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: thinking-sweep 2.2s linear infinite;
+  text-shadow: 0 0 8px hsl(0 0% 100% / 0.65);
 }
 .thinking-text-in { animation: thinking-text-in 0.45s ease-out; }
 
