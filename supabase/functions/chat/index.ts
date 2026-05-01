@@ -381,6 +381,27 @@ async function webSearch(query: string): Promise<string> {
   }
 }
 
+function shouldForceSearch(input: string): boolean {
+  const text = input.toLowerCase();
+  if (!text.trim()) return false;
+
+  const freshOrSpecific = /\b(current|latest|today|now|deadline|merit list|admission date|contact|phone|address|location|where is|principal|hostel|website|programs?|fee|fees|news)\b/i;
+  const collegeAcronyms = /\b(gdc|gpgc|ggdc|ggc|gc|government\s+(degree|postgraduate|girls|college))\b/i;
+  const outsidePolicyPlaces = /\b(lahore|punjab|karachi|islamabad|quetta|sindh|balochistan|rawalpindi|faisalabad)\b/i;
+
+  return freshOrSpecific.test(text) || (collegeAcronyms.test(text) && /\b[a-z]{3,}\b/i.test(text)) || outsidePolicyPlaces.test(text);
+}
+
+function buildSearchQueries(input: string): string[] {
+  const clean = input.replace(/\s+/g, " ").trim();
+  return Array.from(new Set([
+    clean,
+    `${clean} official`,
+    `site:admission.hed.gkp.pk ${clean}`,
+    `site:hed.gkp.pk ${clean}`,
+  ])).slice(0, 4);
+}
+
 const TOOLS = [{
   type: "function",
   function: {
