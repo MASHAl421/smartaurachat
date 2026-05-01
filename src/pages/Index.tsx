@@ -430,22 +430,15 @@ const Index = () => {
 
         <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-5 px-3 sm:px-6">
           <div className="max-w-3xl mx-auto">
-            <div
-              className="bg-card border border-border rounded-full shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all pl-5 pr-1.5 py-1.5 flex items-end gap-2 cursor-text"
-              onClick={(e) => {
-                // Focus the textarea when user clicks anywhere on the pill (except the send button)
-                const target = e.target as HTMLElement;
-                if (target.closest("button")) return;
-                e.currentTarget.querySelector("textarea")?.focus();
-              }}
-            >
+            <div className="bg-card border border-border rounded-full shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all pl-5 pr-1.5 py-1.5 flex items-end gap-2">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
                 placeholder="Message AURA"
+                disabled={sending}
                 rows={1}
-                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none resize-none max-h-32 p-0 py-2 text-[15px] text-foreground placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 outline-none cursor-text caret-primary"
+                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-32 p-0 py-2 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1"
               />
               <Button
                 onClick={() => sendMessage()}
