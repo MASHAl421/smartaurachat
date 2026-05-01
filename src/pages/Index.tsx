@@ -167,6 +167,16 @@ const Index = () => {
     const newMessages = [...baseMessages, userMsg];
     setMessages([...newMessages, { role: "assistant", content: "" }]);
 
+    // Scroll the new user message to the TOP of the viewport
+    const userIdx = newMessages.length - 1;
+    requestAnimationFrame(() => {
+      const node = scrollRef.current?.querySelector<HTMLElement>(`[data-msg-index="${userIdx}"]`);
+      if (node && scrollRef.current) {
+        const top = node.offsetTop - 16; // small breathing room
+        scrollRef.current.scrollTo({ top, behavior: "smooth" });
+      }
+    });
+
     // Persist user message (skip when regenerating — user msg already in DB)
     if (!opts?.skipPersistUser) {
       await supabase.from("messages").insert({
