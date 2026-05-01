@@ -25,7 +25,7 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
               <Sparkles className="h-4.5 w-4.5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="font-semibold leading-none text-[15px]">Policy AI</h2>
+              <h2 className="font-semibold leading-none text-[15px] shadow-none">Aura Chat</h2>
               <p className="text-[11px] text-sidebar-foreground/60 mt-1.5">College Assistant</p>
             </div>
           </div>
