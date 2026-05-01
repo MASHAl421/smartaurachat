@@ -607,57 +607,7 @@ const Index = () => {
         >
           <div className="max-w-3xl mx-auto">
             <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all px-2 py-1.5">
-              {/* Attachment chips */}
-              {pendingAttachments.length > 0 && (
-                <div className="flex flex-wrap gap-2 px-2 pt-2 pb-1">
-                  {pendingAttachments.map((a, i) => {
-                    const isImg = a.type.startsWith("image/");
-                    return (
-                      <div key={i} className="relative group flex items-center gap-2 bg-secondary/60 border border-border rounded-xl pl-1.5 pr-7 py-1 max-w-[200px]">
-                        {isImg ? (
-                          <img src={a.url} alt={a.name} className="h-9 w-9 rounded-md object-cover" />
-                        ) : (
-                          <div className="h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center">
-                            <FileText className="h-4 w-4 text-primary" />
-                          </div>
-                        )}
-                        <span className="text-[12px] text-foreground/80 truncate">{a.name}</span>
-                        <button
-                          onClick={() => removeAttachment(i)}
-                          className="absolute top-1/2 -translate-y-1/2 right-1 p-0.5 rounded-full bg-foreground/70 text-background hover:bg-foreground"
-                          aria-label="Remove attachment"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                  {uploading && (
-                    <div className="text-[12px] text-muted-foreground self-center">Uploading…</div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex items-end gap-2 pl-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*,application/pdf,.doc,.docx,.txt"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading || sending}
-                  className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 disabled:opacity-40"
-                  aria-label="Attach file"
-                  title="Attach image or PDF"
-                >
-                  <Paperclip className="h-[18px] w-[18px]" />
-                </button>
-
+              <div className="flex items-end gap-2 px-3">
                 <Textarea
                   ref={textareaRef}
                   value={input}
@@ -687,7 +637,7 @@ const Index = () => {
                 ) : (
                   <Button
                     onClick={() => sendMessage()}
-                    disabled={!input.trim() && pendingAttachments.length === 0}
+                    disabled={!input.trim()}
                     size="icon"
                     aria-label="Send"
                     className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
