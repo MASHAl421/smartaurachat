@@ -517,18 +517,29 @@ const Index = () => {
                   }, 800);
                 }}
                 placeholder="Message AURA"
-                disabled={sending}
                 rows={1}
                 className="input-scroll border-0 bg-transparent focus-visible:ring-0 resize-none p-0 py-2 text-[15px] leading-5 placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 overflow-hidden"
               />
-              <Button
-                onClick={() => sendMessage()}
-                disabled={!input.trim() || sending}
-                size="icon"
-                className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </Button>
+              {sending ? (
+                <Button
+                  onClick={stopGeneration}
+                  size="icon"
+                  aria-label="Stop generating"
+                  className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/85 flex-shrink-0 animate-fade-in-up"
+                >
+                  <Square className="h-3.5 w-3.5 fill-current" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => sendMessage()}
+                  disabled={!input.trim()}
+                  size="icon"
+                  aria-label="Send"
+                  className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+              )}
             </div>
             <p className="text-[11px] text-muted-foreground/80 text-center mt-3">
               AI-generated, for reference only
