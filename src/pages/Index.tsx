@@ -157,13 +157,46 @@ const Index = () => {
     loadConversations();
   }
 
-  async function renameConversation(id: string) {
+  function openRename(id: string) {
     const current = conversations.find(c => c.id === id);
-    const next = window.prompt("Rename chat", current?.title || "");
-    if (!next || !next.trim() || next === current?.title) return;
-    const { error } = await supabase.from("conversations").update({ title: next.trim() }).eq("id", id);
+    if (!current) return;
+    setRenameTarget({ id, title: current.title });
+    setRenameValue(current.title);
+  }
+
+  async function submitRename() {
+    if (!renameTarget) return;
+    const next = renameValue.trim();
+    if (!next || next === renameTarget.title) { setRenameTarget(null); return; }
+    const { error } = await supabase.from("conversations").update({ title: next }).eq("id", renameTarget.id);
+    setRenameTarget(null);
     if (error) { toast.error("Couldn't rename"); return; }
     loadConversations();
+  }
+
+  async function editUserMessage(index: number, newText: string) {
+    if (sending || !user || !activeId) return;
+    const target = messages[index];
+    if (!target || target.role !== "user") return;
+    // Persist edit on the user message
+    if (target.id) {
+      const { error } = await supabase.from("messages").update({ content: newText }).eq("id", target.id);
+      if (error) { toast.error("Couldn't save edit"); return; }
+    }
+    // Delete every message after the edited one (locally + DB)
+    const tail = messages.slice(index + 1);
+    const tailIds = tail.map(m => m.id).filter(Boolean) as string[];
+    if (tailIds.length) {
+      await supabase.from("messages").delete().in("id", tailIds);
+    }
+    const baseHistory = messages.slice(0, index); // sendMessage will re-add the user msg
+    setSuggestions([]);
+    setMessages([...baseHistory, { ...target, content: newText }, { role: "assistant", content: "" }]);
+    await sendMessage({
+      overrideText: newText,
+      baseHistory,
+      skipPersistUser: true, // we already updated the existing user row
+    });
   }
 
   async function regenerateLast() {
