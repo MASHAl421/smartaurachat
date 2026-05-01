@@ -217,7 +217,7 @@ const Index = () => {
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10 space-y-6">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 sm:py-10 space-y-5 sm:space-y-7">
             {messages.length === 0 ? (
               <div className="text-center pt-8 sm:pt-20 animate-fade-in-up">
                 <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-hero animate-gradient shadow-elegant mb-7">
