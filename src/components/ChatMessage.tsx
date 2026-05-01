@@ -93,6 +93,37 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
       hi: ["hi-IN", "hi", "ur-PK", "ur"],
       en: ["en-US", "en-GB", "en"],
     };
+
+    // For English, prefer a female voice
+    if (lang === "en") {
+      const femaleHints = [
+        "female",
+        "woman",
+        "samantha",
+        "victoria",
+        "karen",
+        "tessa",
+        "moira",
+        "fiona",
+        "serena",
+        "allison",
+        "ava",
+        "susan",
+        "zira",
+        "google us english",
+        "google uk english female",
+      ];
+      const enVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("en"));
+      const female = enVoices.find((v) => {
+        const name = v.name.toLowerCase();
+        return femaleHints.some((h) => name.includes(h));
+      });
+      if (female) return female;
+      // Fallback: any en-US/en-GB voice
+      const fallback = enVoices.find((v) => /en-us|en-gb/i.test(v.lang)) || enVoices[0];
+      if (fallback) return fallback;
+    }
+
     for (const code of prefs[lang]) {
       const match = voices.find((v) => v.lang?.toLowerCase().startsWith(code.toLowerCase()));
       if (match) return match;
