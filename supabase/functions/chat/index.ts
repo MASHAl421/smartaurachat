@@ -347,6 +347,17 @@ Below is the OFFICIAL KNOWLEDGE BASE — treat it as the single source of truth 
 
 ${POLICIES}`;
 
+const CORE_POLICIES = POLICIES.split("\n# PART C")[0].trim();
+
+function needsCollegeDirectory(input: string): boolean {
+  return /\b(college\s+list|colleges\s+in|all\s+colleges|district|gdc|gpgc|ggdc|ggc|government\s+(degree|postgraduate|girls|college))\b/i.test(input);
+}
+
+function buildSystemPrompt(input: string): string {
+  const knowledge = needsCollegeDirectory(input) ? POLICIES : CORE_POLICIES;
+  return SYSTEM_PROMPT.replace(POLICIES, knowledge);
+}
+
 // --- Web search tool (Serper.dev — Google results) ---
 async function webSearch(query: string): Promise<string> {
   try {
