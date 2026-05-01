@@ -3,7 +3,7 @@ import remarkGfm from "remark-gfm";
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart } from "lucide-react";
 import { toast } from "sonner";
-
+import { ThinkingIndicator } from "./ThinkingIndicator";
 
 interface Props {
   role: "user" | "assistant";
@@ -194,11 +194,7 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
           )}
         </>
       ) : (
-        <div className="dot-pulse flex gap-1.5 py-2">
-          <span className="h-2 w-2 rounded-full bg-primary" />
-          <span className="h-2 w-2 rounded-full bg-primary" />
-          <span className="h-2 w-2 rounded-full bg-primary" />
-        </div>
+        <ThinkingIndicator />
       )}
     </div>
   );
