@@ -216,10 +216,12 @@ const Index = () => {
     });
 
     // Persist user message (skip when regenerating — user msg already in DB)
+    let userMsgId: string | null = null;
     if (!opts?.skipPersistUser) {
-      await supabase.from("messages").insert({
+      const { data: insertedUser } = await supabase.from("messages").insert({
         conversation_id: convId, user_id: user.id, role: "user", content: text,
-      });
+      }).select().single();
+      userMsgId = insertedUser?.id ?? null;
     }
 
     try {
