@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useState } from "react";
-import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -16,21 +16,19 @@ type Feedback = "up" | "down" | null;
 const ActionButton = ({
   onClick,
   label,
-  active,
+  className = "",
   children,
 }: {
   onClick: () => void;
   label: string;
-  active?: boolean;
+  className?: string;
   children: React.ReactNode;
 }) => (
   <button
     onClick={onClick}
     aria-label={label}
     title={label}
-    className={`p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors ${
-      active ? "text-foreground bg-muted" : ""
-    }`}
+    className={`relative p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors ${className}`}
   >
     {children}
   </button>
@@ -40,6 +38,11 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [likeAnim, setLikeAnim] = useState(false);
+  const [dislikeAnim, setDislikeAnim] = useState(false);
+  const [burst, setBurst] = useState<{ kind: "up" | "down"; key: number } | null>(null);
+  const [particles, setParticles] = useState<{ id: number; px: number; py: number; kind: "up" | "down" }[]>([]);
+  const particleId = useRef(0);
 
   const handleCopy = async () => {
     try {
@@ -52,8 +55,39 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
     }
   };
 
+  const spawnParticles = (kind: "up" | "down") => {
+    const items = Array.from({ length: 6 }).map(() => {
+      const angle = (Math.random() * Math.PI) - Math.PI / 2; // upward arc
+      const dist = 22 + Math.random() * 18;
+      return {
+        id: ++particleId.current,
+        px: Math.cos(angle) * dist,
+        py: -Math.abs(Math.sin(angle) * dist) - 8,
+        kind,
+      };
+    });
+    setParticles((prev) => [...prev, ...items]);
+    setTimeout(() => {
+      setParticles((prev) => prev.filter((p) => !items.find((i) => i.id === p.id)));
+    }, 950);
+  };
+
   const handleFeedback = (val: "up" | "down") => {
-    setFeedback((prev) => (prev === val ? null : val));
+    const wasActive = feedback === val;
+    setFeedback(wasActive ? null : val);
+    if (wasActive) return;
+    if (val === "up") {
+      setLikeAnim(false);
+      requestAnimationFrame(() => setLikeAnim(true));
+      setTimeout(() => setLikeAnim(false), 600);
+    } else {
+      setDislikeAnim(false);
+      requestAnimationFrame(() => setDislikeAnim(true));
+      setTimeout(() => setDislikeAnim(false), 600);
+    }
+    spawnParticles(val);
+    setBurst({ kind: val, key: Date.now() });
+    setTimeout(() => setBurst(null), 1000);
   };
 
   if (isUser) {
@@ -95,12 +129,61 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
               <ActionButton onClick={handleCopy} label={copied ? "Copied" : "Copy"}>
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
               </ActionButton>
-              <ActionButton onClick={() => handleFeedback("up")} label="Good response" active={feedback === "up"}>
-                <ThumbsUp className="h-3.5 w-3.5" />
+
+              <ActionButton
+                onClick={() => handleFeedback("up")}
+                label="Good response"
+                className={feedback === "up" ? "!text-[hsl(212_92%_52%)] bg-[hsl(212_92%_52%/0.1)]" : ""}
+              >
+                <ThumbsUp
+                  className={`h-3.5 w-3.5 ${likeAnim ? "animate-like-pop" : ""}`}
+                  fill={feedback === "up" ? "currentColor" : "none"}
+                />
+                {/* particles */}
+                {particles.filter((p) => p.kind === "up").map((p) => (
+                  <Heart
+                    key={p.id}
+                    className="particle absolute left-1/2 top-1/2 h-3 w-3 text-[hsl(212_92%_52%)] pointer-events-none"
+                    fill="currentColor"
+                    style={{ ["--px" as any]: `${p.px}px`, ["--py" as any]: `${p.py}px` }}
+                  />
+                ))}
+                {burst?.kind === "up" && (
+                  <span
+                    key={burst.key}
+                    className="animate-burst absolute left-1/2 -top-1 -translate-x-1/2 text-[11px] font-semibold text-[hsl(212_92%_52%)] whitespace-nowrap pointer-events-none"
+                  >
+                    Good response 👍
+                  </span>
+                )}
               </ActionButton>
-              <ActionButton onClick={() => handleFeedback("down")} label="Bad response" active={feedback === "down"}>
-                <ThumbsDown className="h-3.5 w-3.5" />
+
+              <ActionButton
+                onClick={() => handleFeedback("down")}
+                label="Bad response"
+                className={feedback === "down" ? "!text-destructive bg-destructive/10" : ""}
+              >
+                <ThumbsDown
+                  className={`h-3.5 w-3.5 ${dislikeAnim ? "animate-dislike-pop" : ""}`}
+                  fill={feedback === "down" ? "currentColor" : "none"}
+                />
+                {particles.filter((p) => p.kind === "down").map((p) => (
+                  <span
+                    key={p.id}
+                    className="particle absolute left-1/2 top-1/2 h-1.5 w-1.5 rounded-full bg-destructive pointer-events-none"
+                    style={{ ["--px" as any]: `${p.px}px`, ["--py" as any]: `${p.py}px` }}
+                  />
+                ))}
+                {burst?.kind === "down" && (
+                  <span
+                    key={burst.key}
+                    className="animate-burst absolute left-1/2 -top-1 -translate-x-1/2 text-[11px] font-semibold text-destructive whitespace-nowrap pointer-events-none"
+                  >
+                    Bad response 👎
+                  </span>
+                )}
               </ActionButton>
+
               {onRegenerate && (
                 <ActionButton onClick={onRegenerate} label="Regenerate">
                   <RotateCcw className="h-3.5 w-3.5" />
