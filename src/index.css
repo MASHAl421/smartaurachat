@@ -232,17 +232,19 @@
     100deg,
     hsl(220 15% 45%) 0%,
     hsl(220 15% 45%) 40%,
+    hsl(230 90% 60%) 48%,
     hsl(0 0% 100%) 50%,
+    hsl(280 90% 65%) 52%,
     hsl(220 15% 45%) 60%,
     hsl(220 15% 45%) 100%
-  );
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
+  ) !important;
+  background-size: 200% 100% !important;
+  background-repeat: no-repeat !important;
   background-position: 200% 50%;
-  -webkit-background-clip: text;
-          background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text !important;
+          background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
   animation: thinking-sweep 2.4s linear infinite;
   font-style: italic;
 }
