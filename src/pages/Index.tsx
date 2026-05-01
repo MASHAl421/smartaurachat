@@ -355,7 +355,7 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen flex bg-background overflow-hidden">
+    <div className="h-[100dvh] flex bg-background overflow-hidden">
       <ChatSidebar
         conversations={conversations}
         activeId={activeId}
@@ -393,7 +393,7 @@ const Index = () => {
           </>
         )}
         {activeId && (
-          <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/95 backdrop-blur-xl flex-shrink-0 z-10">
+          <header className="h-11 border-b border-border/70 flex items-center px-3 gap-2 bg-background/95 backdrop-blur-xl flex-shrink-0 z-20 sticky top-0 md:static">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted" aria-label="Open sidebar">
               <Menu className="h-5 w-5" />
             </button>
@@ -508,7 +508,7 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-t from-background via-background to-transparent pt-2 sm:pt-6 pb-3 sm:pb-5 px-3 sm:px-6 flex-shrink-0">
+        <div className="bg-gradient-to-t from-background via-background to-transparent pt-2 sm:pt-6 pb-3 sm:pb-5 px-3 sm:px-6 flex-shrink-0 sticky bottom-0 md:static z-10">
           <div className="max-w-3xl mx-auto">
             <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all pl-5 pr-1.5 py-1.5 flex items-end gap-2">
               <Textarea
