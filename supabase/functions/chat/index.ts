@@ -440,8 +440,8 @@ const TOOLS = [{
 const OPENROUTER_MODEL = "tencent/hy3-preview:free";
 
 async function callGateway(body: any, apiKey: string) {
-  // Force OpenRouter model regardless of caller-specified model
-  const payload = { ...body, model: OPENROUTER_MODEL };
+  // Use caller-specified model if provided, otherwise default to OPENROUTER_MODEL
+  const payload = { model: OPENROUTER_MODEL, ...body };
   return fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
