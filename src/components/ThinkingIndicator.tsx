@@ -20,37 +20,37 @@ export const ThinkingIndicator = () => {
   }, []);
 
   return (
-    <div className="flex items-center gap-3 py-2 animate-fade-in-up">
-      {/* Logo with rotating gradient ring */}
-      <div className="relative h-8 w-8 flex-shrink-0">
+    <div
+      className="flex items-center gap-3 py-2 animate-fade-in-up"
+      role="status"
+      aria-live="polite"
+      aria-label={`${PHASES[idx]}…`}
+    >
+      {/* Logo with soft pulsing halo */}
+      <div className="relative h-7 w-7 flex-shrink-0">
         <span
-          className="absolute inset-0 rounded-full"
-          style={{
-            background:
-              "conic-gradient(from 0deg, hsl(230 85% 62%), hsl(280 85% 65%), hsl(330 85% 62%), hsl(230 85% 62%))",
-            animation: "thinking-spin 2.4s linear infinite",
-            padding: "2px",
-            WebkitMask:
-              "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-          }}
           aria-hidden
+          className="absolute inset-0 rounded-full thinking-halo"
         />
         <img
           src={auraLogo}
           alt=""
-          className="absolute inset-1 h-6 w-6 object-contain"
+          className="absolute inset-0 h-7 w-7 object-contain thinking-logo-pulse"
         />
       </div>
-      {/* Rotating thinking text with gradient shimmer */}
-      <span
-        key={idx}
-        data-text={PHASES[idx]}
-        className="thinking-text-in thinking-text-shimmer text-[15px] font-medium tracking-tight"
-      >
-        {PHASES[idx]}
-      </span>
+
+      {/* Rotating status label */}
+      <div className="flex items-baseline gap-1.5 min-w-0">
+        <span
+          key={idx}
+          className="thinking-text-in thinking-label text-[14px] font-medium tracking-tight text-foreground/80"
+        >
+          {PHASES[idx]}
+        </span>
+        <span aria-hidden className="thinking-ellipsis text-foreground/60 text-[14px] font-medium">
+          <span>.</span><span>.</span><span>.</span>
+        </span>
+      </div>
     </div>
   );
 };
