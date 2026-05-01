@@ -167,16 +167,6 @@ const Index = () => {
     const newMessages = [...baseMessages, userMsg];
     setMessages([...newMessages, { role: "assistant", content: "" }]);
 
-    // Scroll the new user message to the TOP of the viewport
-    const userIdx = newMessages.length - 1;
-    requestAnimationFrame(() => {
-      const node = scrollRef.current?.querySelector<HTMLElement>(`[data-msg-index="${userIdx}"]`);
-      if (node && scrollRef.current) {
-        const top = node.offsetTop - 16; // small breathing room
-        scrollRef.current.scrollTo({ top, behavior: "smooth" });
-      }
-    });
-
     // Persist user message (skip when regenerating — user msg already in DB)
     if (!opts?.skipPersistUser) {
       await supabase.from("messages").insert({
@@ -376,23 +366,18 @@ const Index = () => {
                 </div>
               </div>
             ) : (
-              <>
-                {messages.map((m, i) => {
-                  const isLastAssistant = m.role === "assistant" && i === messages.length - 1;
-                  return (
-                    <div key={i} data-msg-index={i}>
-                      <ChatMessage
-                        role={m.role}
-                        content={m.content}
-                        streaming={sending && isLastAssistant}
-                        onRegenerate={isLastAssistant && !sending ? regenerateLast : undefined}
-                      />
-                    </div>
-                  );
-                })}
-                {/* Spacer so the latest user message can scroll to the top of the viewport */}
-                <div aria-hidden className="h-[60vh]" />
-              </>
+              messages.map((m, i) => {
+                const isLastAssistant = m.role === "assistant" && i === messages.length - 1;
+                return (
+                  <ChatMessage
+                    key={i}
+                    role={m.role}
+                    content={m.content}
+                    streaming={sending && isLastAssistant}
+                    onRegenerate={isLastAssistant && !sending ? regenerateLast : undefined}
+                  />
+                );
+              })
             )}
 
             {/* Follow-up suggestion chips */}
