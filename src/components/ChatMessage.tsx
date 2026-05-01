@@ -93,7 +93,7 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
 
   if (isUser) {
     return (
-      <div className="group flex flex-col items-end animate-fade-in-up">
+      <div data-role="user" className="group flex flex-col items-end animate-fade-in-up scroll-mt-4">
         <div className="max-w-[85%] sm:max-w-[75%]">
           <div className="bg-secondary text-secondary-foreground rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3">
             <p className="whitespace-pre-wrap leading-relaxed text-[14.5px] sm:text-[15px]">{content}</p>
@@ -109,7 +109,7 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
   }
 
   return (
-    <div className="animate-fade-in-up w-full">
+    <div data-role="assistant" className="animate-fade-in-up w-full scroll-mt-4">
       {content ? (
         <>
           <div className="prose-chat">
