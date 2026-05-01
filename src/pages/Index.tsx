@@ -432,19 +432,19 @@ const Index = () => {
         )}
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className={`max-w-3xl mx-auto px-4 sm:px-8 ${messages.length === 0 ? "min-h-full flex flex-col justify-center py-8" : "py-6 sm:py-10 space-y-6"}`}>
+          <div className={`max-w-3xl mx-auto px-4 sm:px-8 ${messages.length === 0 ? "min-h-full flex flex-col justify-center py-4 sm:py-8" : "py-6 sm:py-10 space-y-6"}`}>
             {messages.length === 0 ? (
               <div className="animate-fade-in-up">
-                <div className="text-center mb-10">
+                <div className="text-center mb-5 sm:mb-10">
                   <img
                     src={auraLogo}
                     alt="AURA logo"
-                    className="inline-block h-20 w-20 object-contain mb-5"
+                    className="inline-block h-14 w-14 sm:h-20 sm:w-20 object-contain mb-3 sm:mb-5"
                   />
-                  <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
+                  <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
                     Hey there! How can I help you today?
                   </h2>
-                  <p className="text-muted-foreground text-[15px] max-w-md mx-auto">
+                  <p className="text-muted-foreground text-[14px] sm:text-[15px] max-w-md mx-auto">
                     Ask anything about college policies, conduct, or academics.
                   </p>
                 </div>
