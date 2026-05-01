@@ -265,7 +265,7 @@ const Index = () => {
 
         <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-5 px-3 sm:px-6">
           <div className="max-w-3xl mx-auto">
-            <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all px-4 pt-3 pb-2.5">
+            <div className="bg-card border border-border rounded-full shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all pl-5 pr-1.5 py-1.5 flex items-end gap-2">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -273,20 +273,16 @@ const Index = () => {
                 placeholder="Message Aura Chat"
                 disabled={sending}
                 rows={1}
-                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 p-0 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[24px]"
+                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-32 p-0 py-2 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1"
               />
-              <div className="flex items-center justify-end mt-3">
-                <div className="flex items-center gap-1.5">
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!input.trim() || sending}
-                    size="icon"
-                    className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              <Button
+                onClick={sendMessage}
+                disabled={!input.trim() || sending}
+                size="icon"
+                className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
+              >
+                <ArrowUp className="h-4 w-4" />
+              </Button>
             </div>
             <p className="text-[11px] text-muted-foreground/80 text-center mt-3">
               AI-generated, for reference only
