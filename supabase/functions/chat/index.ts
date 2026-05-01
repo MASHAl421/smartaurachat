@@ -413,8 +413,19 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
 
+    const latestUserMessage = [...messages].reverse().find((message: any) => message?.role === "user")?.content || "";
     const convo: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
-    const MODEL = "google/gemini-2.5-flash-lite"; // fast default
+    const MODEL = "google/gemini-3-flash-preview";
+    const shouldSearchFirst = shouldForceSearch(latestUserMessage);
+
+    if (shouldSearchFirst) {
+      const searchQueries = buildSearchQueries(latestUserMessage);
+      const toolResults = await Promise.all(searchQueries.map((query) => webSearch(query)));
+      convo.push({
+        role: "system",
+        content: `Live web search results for the user's latest question (${JSON.stringify(latestUserMessage)}):\n${toolResults.map((result, index) => `Search ${index + 1}: ${result}`).join("\n\n")}\n\nUse these results to answer naturally. Include source links when useful. If results are weak, combine them with your own knowledge instead of refusing.`,
+      });
+    }
 
     // Tool-call loop (max 2 rounds). Non-streaming only when we need to inspect tool_calls;
     // as soon as the model produces a final answer, stream it directly to the client.
