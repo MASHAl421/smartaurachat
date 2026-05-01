@@ -233,6 +233,18 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
                   <RotateCcw className="h-3.5 w-3.5" />
                 </ActionButton>
               )}
+
+              <ActionButton
+                onClick={handleSpeak}
+                label={speaking ? "Stop" : "Read aloud"}
+                className={speaking ? "!text-primary bg-primary/10" : ""}
+              >
+                {speaking ? (
+                  <Square className="h-3.5 w-3.5 fill-current" />
+                ) : (
+                  <Volume2 className="h-3.5 w-3.5" />
+                )}
+              </ActionButton>
             </div>
           )}
         </>
