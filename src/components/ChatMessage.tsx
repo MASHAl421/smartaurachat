@@ -1,7 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { forwardRef } from "react";
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { ThinkingIndicator } from "./ThinkingIndicator";
