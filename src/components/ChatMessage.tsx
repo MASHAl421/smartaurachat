@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart } from "lucide-react";
+import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart, Volume2, Square } from "lucide-react";
 import { toast } from "sonner";
 import { ThinkingIndicator } from "./ThinkingIndicator";
 
@@ -44,6 +44,49 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
   const [burst, setBurst] = useState<{ kind: "up" | "down"; key: number } | null>(null);
   const [particles, setParticles] = useState<{ id: number; px: number; py: number; kind: "up" | "down" }[]>([]);
   const particleId = useRef(0);
+  const [speaking, setSpeaking] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (utteranceRef.current && typeof window !== "undefined") {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const stripMarkdown = (md: string) =>
+    md
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/[*_~#>]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const handleSpeak = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      toast.error("Speech not supported in this browser");
+      return;
+    }
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    const text = stripMarkdown(content);
+    if (!text) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 1;
+    utt.pitch = 1;
+    utt.onend = () => setSpeaking(false);
+    utt.onerror = () => setSpeaking(false);
+    utteranceRef.current = utt;
+    window.speechSynthesis.speak(utt);
+    setSpeaking(true);
+  };
 
   const handleCopy = async () => {
     try {
@@ -190,6 +233,18 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
                   <RotateCcw className="h-3.5 w-3.5" />
                 </ActionButton>
               )}
+
+              <ActionButton
+                onClick={handleSpeak}
+                label={speaking ? "Stop" : "Read aloud"}
+                className={speaking ? "!text-primary bg-primary/10" : ""}
+              >
+                {speaking ? (
+                  <Square className="h-3.5 w-3.5 fill-current" />
+                ) : (
+                  <Volume2 className="h-3.5 w-3.5" />
+                )}
+              </ActionButton>
             </div>
           )}
         </>
