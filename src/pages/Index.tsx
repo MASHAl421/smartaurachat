@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, Sparkles, ScrollText, Scale, ShieldAlert, GraduationCap } from "lucide-react";
+import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
