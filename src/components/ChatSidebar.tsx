@@ -57,15 +57,15 @@ export const ChatSidebar = ({ conversations, activeId, onSelect, onNew, onDelete
       >
         {/* Brand */}
         <div className="px-4 pt-4 pb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-0 min-w-0">
             <img
               src={auraLogo}
               alt="AURA — Academic User Rule Assistant"
-              className="h-11 w-11 object-contain flex-shrink-0"
+              className="h-11 w-11 object-contain flex-shrink-0 -mr-1"
             />
-            <div className="flex flex-col min-w-0 leading-tight">
-              <span className="text-sidebar-foreground tracking-tight font-bold font-sans py-0 mx-0 text-2xl px-0 pr-0 pb-0">URA</span>
-              <span className="text-[10px] text-sidebar-foreground/60 truncate">Academic User Rule Assistant</span>
+            <div className="flex flex-col min-w-0 leading-none">
+              <span className="text-sidebar-foreground tracking-tight font-bold font-sans text-2xl leading-none">URA</span>
+              <span className="text-[10px] text-sidebar-foreground/60 truncate mt-1">Academic User Rule Assistant</span>
             </div>
           </div>
           <button
