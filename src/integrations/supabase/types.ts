@@ -38,6 +38,33 @@ export type Database = {
         }
         Relationships: []
       }
+      message_feedback: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          rating: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          rating: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          rating?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string

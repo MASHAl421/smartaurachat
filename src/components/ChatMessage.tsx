@@ -4,12 +4,15 @@ import { forwardRef, useEffect, useRef, useState } from "react";
 import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart, Volume2, Square } from "lucide-react";
 import { toast } from "sonner";
 import { ThinkingIndicator } from "./ThinkingIndicator";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   role: "user" | "assistant";
   content: string;
   streaming?: boolean;
   onRegenerate?: () => void;
+  messageId?: string;
+  initialFeedback?: "up" | "down" | null;
 }
 
 type Feedback = "up" | "down" | null;
@@ -35,15 +38,17 @@ const ActionButton = forwardRef<
 ));
 ActionButton.displayName = "ActionButton";
 
-export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) => {
+export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId, initialFeedback = null }: Props) => {
   const isUser = role === "user";
   const [copied, setCopied] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [feedback, setFeedback] = useState<Feedback>(initialFeedback);
   const [likeAnim, setLikeAnim] = useState(false);
   const [dislikeAnim, setDislikeAnim] = useState(false);
   const [burst, setBurst] = useState<{ kind: "up" | "down"; key: number } | null>(null);
   const [particles, setParticles] = useState<{ id: number; px: number; py: number; kind: "up" | "down" }[]>([]);
   const particleId = useRef(0);
+
+  useEffect(() => { setFeedback(initialFeedback); }, [initialFeedback, messageId]);
   const [speaking, setSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -116,22 +121,41 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) =
     }, 950);
   };
 
-  const handleFeedback = (val: "up" | "down") => {
+  const handleFeedback = async (val: "up" | "down") => {
     const wasActive = feedback === val;
-    setFeedback(wasActive ? null : val);
-    if (wasActive) return;
-    if (val === "up") {
-      setLikeAnim(false);
-      requestAnimationFrame(() => setLikeAnim(true));
-      setTimeout(() => setLikeAnim(false), 600);
-    } else {
-      setDislikeAnim(false);
-      requestAnimationFrame(() => setDislikeAnim(true));
-      setTimeout(() => setDislikeAnim(false), 600);
+    const next = wasActive ? null : val;
+    setFeedback(next);
+    if (!wasActive) {
+      if (val === "up") {
+        setLikeAnim(false);
+        requestAnimationFrame(() => setLikeAnim(true));
+        setTimeout(() => setLikeAnim(false), 600);
+      } else {
+        setDislikeAnim(false);
+        requestAnimationFrame(() => setDislikeAnim(true));
+        setTimeout(() => setDislikeAnim(false), 600);
+      }
+      spawnParticles(val);
+      setBurst({ kind: val, key: Date.now() });
+      setTimeout(() => setBurst(null), 1000);
     }
-    spawnParticles(val);
-    setBurst({ kind: val, key: Date.now() });
-    setTimeout(() => setBurst(null), 1000);
+
+    if (!messageId) return;
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) return;
+      if (next === null) {
+        await supabase.from("message_feedback").delete().eq("message_id", messageId).eq("user_id", uid);
+      } else {
+        await supabase.from("message_feedback").upsert(
+          { message_id: messageId, user_id: uid, rating: next, updated_at: new Date().toISOString() },
+          { onConflict: "message_id,user_id" }
+        );
+      }
+    } catch {
+      // silent — UI feedback already shown
+    }
   };
 
   if (isUser) {

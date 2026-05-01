@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, Square, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2 } from "lucide-react";
+import { Menu, ArrowUp, Square, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2, Paperclip, X, FileText } from "lucide-react";
 import auraLogo from "@/assets/aura-logo.png";
 import { toast } from "sonner";
 import {
@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+type Attachment = { url: string; name: string; type: string };
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
@@ -37,6 +38,10 @@ const Index = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [feedbackMap, setFeedbackMap] = useState<Record<string, "up" | "down">>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const skipLoadRef = useRef<string | null>(null); // conv id to skip auto-loading (just created locally)
@@ -79,15 +84,61 @@ const Index = () => {
 
   async function loadMessages(id: string) {
     const { data } = await supabase.from("messages").select("*").eq("conversation_id", id).order("created_at");
-    setMessages((data || []).map(m => ({ id: m.id, role: m.role as "user" | "assistant", content: m.content })));
+    const msgs = (data || []).map(m => ({ id: m.id, role: m.role as "user" | "assistant", content: m.content }));
+    setMessages(msgs);
+    // Load feedback for assistant messages
+    const ids = msgs.filter(m => m.role === "assistant" && m.id).map(m => m.id!) ;
+    if (ids.length) {
+      const { data: fb } = await supabase.from("message_feedback").select("message_id, rating").in("message_id", ids);
+      const map: Record<string, "up" | "down"> = {};
+      (fb || []).forEach((r: any) => { map[r.message_id] = r.rating; });
+      setFeedbackMap(map);
+    } else {
+      setFeedbackMap({});
+    }
   }
 
   async function newChat() {
     setActiveId(null);
     setMessages([]);
     setSuggestions([]);
+    setPendingAttachments([]);
     setSidebarOpen(false);
   }
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length || !user) return;
+    if (pendingAttachments.length + files.length > 4) {
+      toast.error("Up to 4 files at a time");
+      return;
+    }
+    setUploading(true);
+    try {
+      for (const file of files) {
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(`${file.name} is over 10MB`);
+          continue;
+        }
+        const ext = file.name.split(".").pop() || "bin";
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error } = await supabase.storage.from("chat-attachments").upload(path, file, {
+          contentType: file.type || "application/octet-stream",
+        });
+        if (error) { toast.error(`Upload failed: ${file.name}`); continue; }
+        const { data } = supabase.storage.from("chat-attachments").getPublicUrl(path);
+        setPendingAttachments((prev) => [...prev, { url: data.publicUrl, name: file.name, type: file.type || "application/octet-stream" }]);
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeAttachment(idx: number) {
+    setPendingAttachments((prev) => prev.filter((_, i) => i !== idx));
+  }
+
 
   async function deleteConversation(id: string) {
     await supabase.from("conversations").delete().eq("id", id);
@@ -162,16 +213,29 @@ const Index = () => {
     regenerate?: boolean;
     previousAnswer?: string;
   }) {
-    const text = (opts?.overrideText ?? input).trim();
-    if (!text || sending || !user) return;
-    if (!opts?.overrideText) setInput("");
+    const rawText = (opts?.overrideText ?? input).trim();
+    const attachments = opts?.overrideText ? [] : pendingAttachments;
+    if (!rawText && attachments.length === 0) return;
+    if (sending || !user) return;
+    if (!opts?.overrideText) { setInput(""); setPendingAttachments([]); }
     setSending(true);
     setSuggestions([]);
+
+    // Compose final user message text with attachment references (markdown)
+    let text = rawText;
+    if (attachments.length > 0) {
+      const refs = attachments.map((a) => {
+        const isImg = a.type.startsWith("image/");
+        return isImg ? `![${a.name}](${a.url})` : `[📎 ${a.name}](${a.url})`;
+      }).join("\n");
+      text = (rawText ? rawText + "\n\n" : "") + refs;
+    }
 
     let convId = activeId;
     // Create conversation if first message
     if (!convId) {
-      const title = text.slice(0, 50) + (text.length > 50 ? "…" : "");
+      const titleSrc = rawText || attachments[0]?.name || "New chat";
+      const title = titleSrc.slice(0, 50) + (titleSrc.length > 50 ? "…" : "");
       const { data, error } = await supabase
         .from("conversations")
         .insert({ user_id: user.id, title })
@@ -320,9 +384,19 @@ const Index = () => {
       const assistantText = fullText;
       // Persist assistant message (even if user aborted, save partial)
       if (assistantText) {
-        await supabase.from("messages").insert({
+        const { data: insertedAsst } = await supabase.from("messages").insert({
           conversation_id: convId, user_id: user.id, role: "assistant", content: assistantText,
-        });
+        }).select().single();
+        if (insertedAsst?.id) {
+          // Attach id to the last assistant message in state so feedback can persist
+          setMessages((prev) => {
+            const next = [...prev];
+            for (let i = next.length - 1; i >= 0; i--) {
+              if (next[i].role === "assistant") { next[i] = { ...next[i], id: insertedAsst.id }; break; }
+            }
+            return next;
+          });
+        }
         if (!aborted) {
           // Fire-and-forget: fetch follow-up suggestions
           fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
@@ -469,11 +543,13 @@ const Index = () => {
                 const isLastAssistant = m.role === "assistant" && i === messages.length - 1;
                 return (
                   <ChatMessage
-                    key={i}
+                    key={m.id || i}
                     role={m.role}
                     content={m.content}
                     streaming={sending && isLastAssistant}
                     onRegenerate={isLastAssistant && !sending ? regenerateLast : undefined}
+                    messageId={m.id}
+                    initialFeedback={m.id ? (feedbackMap[m.id] ?? null) : null}
                   />
                 );
               })
@@ -510,45 +586,96 @@ const Index = () => {
 
         <div className="bg-gradient-to-t from-background via-background to-transparent pt-2 sm:pt-6 pb-3 sm:pb-5 px-3 sm:px-6 flex-shrink-0 sticky bottom-0 md:static z-10">
           <div className="max-w-3xl mx-auto">
-            <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all pl-5 pr-1.5 py-1.5 flex items-end gap-2">
-              <Textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKey}
-                onScroll={(e) => {
-                  // Show scrollbar briefly while user is scrolling (esp. mobile/touch).
-                  const el = e.currentTarget;
-                  el.classList.add("is-scrolling");
-                  window.clearTimeout((el as any)._scrollHideTimer);
-                  (el as any)._scrollHideTimer = window.setTimeout(() => {
-                    el.classList.remove("is-scrolling");
-                  }, 800);
-                }}
-                placeholder="Message AURA"
-                rows={1}
-                className="input-scroll border-0 bg-transparent focus-visible:ring-0 resize-none p-0 py-2 text-[15px] leading-5 placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 overflow-hidden"
-              />
-              {sending ? (
-                <Button
-                  onClick={stopGeneration}
-                  size="icon"
-                  aria-label="Stop generating"
-                  className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/85 flex-shrink-0 animate-fade-in-up"
-                >
-                  <Square className="h-3.5 w-3.5 fill-current" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => sendMessage()}
-                  disabled={!input.trim()}
-                  size="icon"
-                  aria-label="Send"
-                  className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
-                >
-                  <ArrowUp className="h-4 w-4" />
-                </Button>
+            <div className="bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/40 focus-within:shadow-elegant transition-all px-2 py-1.5">
+              {/* Attachment chips */}
+              {pendingAttachments.length > 0 && (
+                <div className="flex flex-wrap gap-2 px-2 pt-2 pb-1">
+                  {pendingAttachments.map((a, i) => {
+                    const isImg = a.type.startsWith("image/");
+                    return (
+                      <div key={i} className="relative group flex items-center gap-2 bg-secondary/60 border border-border rounded-xl pl-1.5 pr-7 py-1 max-w-[200px]">
+                        {isImg ? (
+                          <img src={a.url} alt={a.name} className="h-9 w-9 rounded-md object-cover" />
+                        ) : (
+                          <div className="h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center">
+                            <FileText className="h-4 w-4 text-primary" />
+                          </div>
+                        )}
+                        <span className="text-[12px] text-foreground/80 truncate">{a.name}</span>
+                        <button
+                          onClick={() => removeAttachment(i)}
+                          className="absolute top-1/2 -translate-y-1/2 right-1 p-0.5 rounded-full bg-foreground/70 text-background hover:bg-foreground"
+                          aria-label="Remove attachment"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {uploading && (
+                    <div className="text-[12px] text-muted-foreground self-center">Uploading…</div>
+                  )}
+                </div>
               )}
+
+              <div className="flex items-end gap-2 pl-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,application/pdf,.doc,.docx,.txt"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading || sending}
+                  className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 disabled:opacity-40"
+                  aria-label="Attach file"
+                  title="Attach image or PDF"
+                >
+                  <Paperclip className="h-[18px] w-[18px]" />
+                </button>
+
+                <Textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKey}
+                  onScroll={(e) => {
+                    const el = e.currentTarget;
+                    el.classList.add("is-scrolling");
+                    window.clearTimeout((el as any)._scrollHideTimer);
+                    (el as any)._scrollHideTimer = window.setTimeout(() => {
+                      el.classList.remove("is-scrolling");
+                    }, 800);
+                  }}
+                  placeholder="Message AURA"
+                  rows={1}
+                  className="input-scroll border-0 bg-transparent focus-visible:ring-0 resize-none p-0 py-2 text-[15px] leading-5 placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 overflow-hidden"
+                />
+                {sending ? (
+                  <Button
+                    onClick={stopGeneration}
+                    size="icon"
+                    aria-label="Stop generating"
+                    className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/85 flex-shrink-0 animate-fade-in-up"
+                  >
+                    <Square className="h-3.5 w-3.5 fill-current" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => sendMessage()}
+                    disabled={!input.trim() && pendingAttachments.length === 0}
+                    size="icon"
+                    aria-label="Send"
+                    className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
+                  >
+                    <ArrowUp className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
             <p className="text-[11px] text-muted-foreground/80 text-center mt-3">
               Aura is AI and can make mistakes.
