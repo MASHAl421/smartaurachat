@@ -8,6 +8,7 @@ import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2 } from "lucide-react";
+import auraLogo from "@/assets/aura-logo.jpeg";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -339,9 +340,11 @@ const Index = () => {
             {messages.length === 0 ? (
               <div className="animate-fade-in-up">
                 <div className="text-center mb-10">
-                  <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero shadow-elegant mb-5">
-                    <GraduationCap className="h-7 w-7 text-primary-foreground" />
-                  </div>
+                  <img
+                    src={auraLogo}
+                    alt="AURA logo"
+                    className="inline-block h-14 w-14 rounded-2xl object-cover shadow-elegant mb-5"
+                  />
                   <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
                     Hey there! How can I help you today?
                   </h2>
@@ -412,7 +415,7 @@ const Index = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
-                placeholder="Message Aura Chat"
+                placeholder="Message AURA"
                 disabled={sending}
                 rows={1}
                 className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-32 p-0 py-2 text-[15px] placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1"
