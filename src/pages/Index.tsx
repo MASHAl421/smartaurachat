@@ -355,7 +355,7 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen flex bg-background overflow-hidden">
+    <div className="h-[100dvh] flex bg-background overflow-hidden">
       <ChatSidebar
         conversations={conversations}
         activeId={activeId}
