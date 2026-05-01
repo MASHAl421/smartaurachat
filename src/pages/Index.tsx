@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2 } from "lucide-react";
+import { Menu, ArrowUp, Square, ScrollText, Scale, ShieldAlert, GraduationCap, ChevronDown, SquarePen, Pencil, Trash2 } from "lucide-react";
 import auraLogo from "@/assets/aura-logo.png";
 import { toast } from "sonner";
 import {
@@ -40,6 +40,11 @@ const Index = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const skipLoadRef = useRef<string | null>(null); // conv id to skip auto-loading (just created locally)
+  const abortRef = useRef<AbortController | null>(null);
+
+  function stopGeneration() {
+    abortRef.current?.abort();
+  }
 
   // Auto-resize textarea: grow from 1 → up to 7 lines, then scroll.
   useEffect(() => {
@@ -218,6 +223,8 @@ const Index = () => {
     }
 
     try {
+      const controller = new AbortController();
+      abortRef.current = controller;
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`, {
         method: "POST",
         headers: {
@@ -229,6 +236,7 @@ const Index = () => {
           regenerate: !!opts?.regenerate,
           previousAnswer: opts?.previousAnswer,
         }),
+        signal: controller.signal,
       });
 
       if (!resp.ok || !resp.body) {
@@ -265,26 +273,35 @@ const Index = () => {
       requestAnimationFrame(tick);
 
       let done = false;
-      while (!done) {
-        const { done: d, value } = await reader.read();
-        if (d) break;
-        buffer += decoder.decode(value, { stream: true });
-        let idx: number;
-        while ((idx = buffer.indexOf("\n")) !== -1) {
-          let line = buffer.slice(0, idx);
-          buffer = buffer.slice(idx + 1);
-          if (line.endsWith("\r")) line = line.slice(0, -1);
-          if (!line.startsWith("data: ")) continue;
-          const json = line.slice(6).trim();
-          if (json === "[DONE]") { done = true; break; }
-          try {
-            const parsed = JSON.parse(json);
-            const delta = parsed.choices?.[0]?.delta?.content;
-            if (delta) fullText += delta;
-          } catch {
-            buffer = line + "\n" + buffer;
-            break;
+      let aborted = false;
+      try {
+        while (!done) {
+          const { done: d, value } = await reader.read();
+          if (d) break;
+          buffer += decoder.decode(value, { stream: true });
+          let idx: number;
+          while ((idx = buffer.indexOf("\n")) !== -1) {
+            let line = buffer.slice(0, idx);
+            buffer = buffer.slice(idx + 1);
+            if (line.endsWith("\r")) line = line.slice(0, -1);
+            if (!line.startsWith("data: ")) continue;
+            const json = line.slice(6).trim();
+            if (json === "[DONE]") { done = true; break; }
+            try {
+              const parsed = JSON.parse(json);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) fullText += delta;
+            } catch {
+              buffer = line + "\n" + buffer;
+              break;
+            }
           }
+        }
+      } catch (e: any) {
+        if (e?.name === "AbortError" || controller.signal.aborted) {
+          aborted = true;
+        } else {
+          throw e;
         }
       }
       streamDone = true;
@@ -299,19 +316,26 @@ const Index = () => {
       });
 
       const assistantText = fullText;
-      // Persist assistant message
+      // Persist assistant message (even if user aborted, save partial)
       if (assistantText) {
         await supabase.from("messages").insert({
           conversation_id: convId, user_id: user.id, role: "assistant", content: assistantText,
         });
-        // Fire-and-forget: fetch follow-up suggestions
-        fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
+        if (!aborted) {
+          // Fire-and-forget: fetch follow-up suggestions
+          fetchSuggestions([...newMessages, { role: "assistant", content: assistantText }]);
+        }
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Connection error");
-      setMessages(newMessages);
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        // user stopped — keep whatever was streamed so far
+      } else {
+        console.error(err);
+        toast.error("Connection error");
+        setMessages(newMessages);
+      }
     } finally {
+      abortRef.current = null;
       setSending(false);
     }
   }
@@ -493,18 +517,29 @@ const Index = () => {
                   }, 800);
                 }}
                 placeholder="Message AURA"
-                disabled={sending}
                 rows={1}
                 className="input-scroll border-0 bg-transparent focus-visible:ring-0 resize-none p-0 py-2 text-[15px] leading-5 placeholder:text-muted-foreground/70 shadow-none min-h-[20px] flex-1 overflow-hidden"
               />
-              <Button
-                onClick={() => sendMessage()}
-                disabled={!input.trim() || sending}
-                size="icon"
-                className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </Button>
+              {sending ? (
+                <Button
+                  onClick={stopGeneration}
+                  size="icon"
+                  aria-label="Stop generating"
+                  className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/85 flex-shrink-0 animate-fade-in-up"
+                >
+                  <Square className="h-3.5 w-3.5 fill-current" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => sendMessage()}
+                  disabled={!input.trim()}
+                  size="icon"
+                  aria-label="Send"
+                  className="h-9 w-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground flex-shrink-0"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+              )}
             </div>
             <p className="text-[11px] text-muted-foreground/80 text-center mt-3">
               AI-generated, for reference only
