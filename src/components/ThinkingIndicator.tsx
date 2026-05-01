@@ -26,16 +26,17 @@ export const ThinkingIndicator = () => {
       aria-live="polite"
       aria-label={`${PHASES[idx]}…`}
     >
-      {/* Logo with soft pulsing halo */}
-      <div className="relative h-7 w-7 flex-shrink-0">
-        <span
-          aria-hidden
-          className="absolute inset-0 rounded-full thinking-halo"
-        />
+      {/* Logo with rotating gradient ring + soft glow */}
+      <div className="relative h-8 w-8 flex-shrink-0 thinking-logo-float">
+        {/* Outer rotating gradient ring */}
+        <span aria-hidden className="absolute inset-0 rounded-full thinking-ring" />
+        {/* Inner soft glow */}
+        <span aria-hidden className="absolute inset-0 rounded-full thinking-glow" />
+        {/* Logo */}
         <img
           src={auraLogo}
           alt=""
-          className="absolute inset-0 h-7 w-7 object-contain thinking-logo-pulse"
+          className="absolute inset-[3px] h-[calc(100%-6px)] w-[calc(100%-6px)] object-contain rounded-full bg-background"
         />
       </div>
 
