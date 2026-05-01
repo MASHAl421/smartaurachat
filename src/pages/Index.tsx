@@ -7,7 +7,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatMessage } from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap, Sparkles } from "lucide-react";
+import { Menu, ArrowUp, ScrollText, Scale, ShieldAlert, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
@@ -225,7 +225,7 @@ const Index = () => {
               <div className="animate-fade-in-up">
                 <div className="text-center mb-10">
                   <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-hero shadow-elegant mb-5">
-                    <Sparkles className="h-7 w-7 text-primary-foreground" />
+                    <GraduationCap className="h-7 w-7 text-primary-foreground" />
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
                     Hey there! How can I help you today?
