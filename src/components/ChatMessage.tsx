@@ -1,5 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { forwardRef } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Copy, Check, ThumbsUp, ThumbsDown, RotateCcw, Heart } from "lucide-react";
 import { toast } from "sonner";
@@ -14,18 +15,17 @@ interface Props {
 
 type Feedback = "up" | "down" | null;
 
-const ActionButton = ({
-  onClick,
-  label,
-  className = "",
-  children,
-}: {
-  onClick: () => void;
-  label: string;
-  className?: string;
-  children: React.ReactNode;
-}) => (
+const ActionButton = forwardRef<
+  HTMLButtonElement,
+  {
+    onClick: () => void;
+    label: string;
+    className?: string;
+    children: React.ReactNode;
+  }
+>(({ onClick, label, className = "", children }, ref) => (
   <button
+    ref={ref}
     onClick={onClick}
     aria-label={label}
     title={label}
@@ -33,7 +33,8 @@ const ActionButton = ({
   >
     {children}
   </button>
-);
+));
+ActionButton.displayName = "ActionButton";
 
 export const ChatMessage = ({ role, content, streaming, onRegenerate }: Props) => {
   const isUser = role === "user";
