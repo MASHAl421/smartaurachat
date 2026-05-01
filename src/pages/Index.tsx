@@ -204,42 +204,48 @@ const Index = () => {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 relative bg-gradient-glow">
-        <header className="h-14 border-b border-border/60 flex items-center px-4 gap-3 bg-background/70 backdrop-blur-xl sticky top-0 z-10">
-          <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-muted">
+      <main className="flex-1 flex flex-col min-w-0 relative bg-background">
+        <header className="h-14 border-b border-border flex items-center px-4 gap-3 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
+          <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-muted">
             <Menu className="h-5 w-5" />
           </button>
-          <h1 className="font-semibold text-foreground tracking-tight">Aura Chat</h1>
-          <span className="ml-auto text-xs text-muted-foreground hidden sm:flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-md bg-foreground text-background flex items-center justify-center font-serif font-bold text-[13px]">A</div>
+            <h1 className="font-serif font-semibold text-foreground tracking-tight text-[17px]">Aura Chat</h1>
+          </div>
+          <span className="ml-auto text-[11px] uppercase tracking-[0.12em] text-muted-foreground hidden sm:flex items-center gap-1.5 font-sans font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             Online
           </span>
         </header>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 sm:py-10 space-y-5 sm:space-y-7">
+          <div className="max-w-3xl mx-auto px-4 sm:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
             {messages.length === 0 ? (
-              <div className="text-center pt-8 sm:pt-20 animate-fade-in-up">
-                <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-hero animate-gradient shadow-elegant mb-7">
-                  <Sparkles className="h-8 w-8 text-primary-foreground" />
+              <div className="pt-6 sm:pt-16 animate-fade-in-up">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground font-sans font-medium mb-4">
+                  An educational assistant
                 </div>
-                <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
-                  <span className="text-gradient">Hello there.</span>
+                <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05] mb-5">
+                  Knowledge,<br/>
+                  <span className="italic text-primary">precisely answered.</span>
                 </h2>
-                <p className="text-muted-foreground text-lg max-w-md mx-auto mb-12">
-                  How can I help you today?
+                <p className="text-muted-foreground text-base sm:text-lg max-w-xl mb-10 font-sans leading-relaxed">
+                  Ask anything about college policies, conduct, and academics. Sourced answers, clearly written.
                 </p>
-                <div className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+
+                <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground font-sans font-medium mb-3">
+                  Examples
+                </div>
+                <div className="grid sm:grid-cols-2 gap-px bg-border border border-border rounded-lg overflow-hidden">
                   {SUGGESTIONS.map((s, i) => (
                     <button
                       key={i}
                       onClick={() => setInput(s.text)}
-                      className="text-left p-4 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm hover:border-primary/40 hover:bg-card hover:-translate-y-0.5 hover:shadow-elegant transition-all duration-200 flex items-start gap-3 group"
+                      className="text-left p-4 sm:p-5 bg-card hover:bg-muted transition-colors flex items-start gap-3 group"
                     >
-                      <div className="h-9 w-9 rounded-xl bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center flex-shrink-0 transition-colors">
-                        <s.icon className="h-4 w-4 text-primary" />
-                      </div>
-                      <span className="text-sm text-foreground/90 leading-relaxed">{s.text}</span>
+                      <s.icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground mt-0.5 flex-shrink-0 transition-colors" />
+                      <span className="font-serif text-[15px] text-foreground leading-snug">{s.text}</span>
                     </button>
                   ))}
                 </div>
@@ -257,28 +263,28 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-4 px-3 sm:px-4">
+        <div className="bg-gradient-to-t from-background via-background to-transparent pt-6 pb-3 sm:pb-5 px-3 sm:px-6">
           <div className="max-w-3xl mx-auto">
-            <div className="relative flex items-end gap-2 bg-card border border-border rounded-3xl shadow-soft focus-within:border-primary/50 focus-within:shadow-elegant transition-all px-2">
+            <div className="relative flex items-end gap-2 bg-card border-2 border-border rounded-xl focus-within:border-foreground transition-colors">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
-                placeholder="Ask Aura Chat anything…"
+                placeholder="Ask a question…"
                 disabled={sending}
                 rows={1}
-                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 py-4 pl-3 pr-14 text-[15px] placeholder:text-muted-foreground/70"
+                className="border-0 bg-transparent focus-visible:ring-0 resize-none max-h-40 py-3.5 pl-4 pr-14 text-[15px] placeholder:text-muted-foreground/70 font-sans"
               />
               <Button
                 onClick={sendMessage}
                 disabled={!input.trim() || sending}
                 size="icon"
-                className="absolute right-2.5 bottom-2.5 h-9 w-9 rounded-full bg-gradient-hero animate-gradient hover:opacity-90 disabled:opacity-30 disabled:bg-muted disabled:bg-none shadow-soft"
+                className="absolute right-2 bottom-2 h-9 w-9 rounded-md bg-foreground text-background hover:bg-foreground/90 disabled:opacity-25 disabled:bg-foreground"
               >
                 <ArrowUp className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-[11px] text-muted-foreground/80 text-center mt-2.5">
+            <p className="text-[11px] text-muted-foreground/80 text-center mt-3 font-sans">
               Aura Chat may make mistakes — verify important matters with college administration.
             </p>
           </div>
