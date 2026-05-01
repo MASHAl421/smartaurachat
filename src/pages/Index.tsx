@@ -213,16 +213,29 @@ const Index = () => {
     regenerate?: boolean;
     previousAnswer?: string;
   }) {
-    const text = (opts?.overrideText ?? input).trim();
-    if (!text || sending || !user) return;
-    if (!opts?.overrideText) setInput("");
+    const rawText = (opts?.overrideText ?? input).trim();
+    const attachments = opts?.overrideText ? [] : pendingAttachments;
+    if (!rawText && attachments.length === 0) return;
+    if (sending || !user) return;
+    if (!opts?.overrideText) { setInput(""); setPendingAttachments([]); }
     setSending(true);
     setSuggestions([]);
+
+    // Compose final user message text with attachment references (markdown)
+    let text = rawText;
+    if (attachments.length > 0) {
+      const refs = attachments.map((a) => {
+        const isImg = a.type.startsWith("image/");
+        return isImg ? `![${a.name}](${a.url})` : `[📎 ${a.name}](${a.url})`;
+      }).join("\n");
+      text = (rawText ? rawText + "\n\n" : "") + refs;
+    }
 
     let convId = activeId;
     // Create conversation if first message
     if (!convId) {
-      const title = text.slice(0, 50) + (text.length > 50 ? "…" : "");
+      const titleSrc = rawText || attachments[0]?.name || "New chat";
+      const title = titleSrc.slice(0, 50) + (titleSrc.length > 50 ? "…" : "");
       const { data, error } = await supabase
         .from("conversations")
         .insert({ user_id: user.id, title })
