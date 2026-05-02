@@ -180,7 +180,6 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
     try {
       await navigator.clipboard.writeText(content);
       setCopied(true);
-      toast.success("Copied to clipboard");
       setTimeout(() => setCopied(false), 1500);
     } catch {
       toast.error("Couldn't copy");
