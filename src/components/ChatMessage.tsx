@@ -180,7 +180,6 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
     try {
       await navigator.clipboard.writeText(content);
       setCopied(true);
-      toast.success("Copied to clipboard");
       setTimeout(() => setCopied(false), 1500);
     } catch {
       toast.error("Couldn't copy");
@@ -273,6 +272,11 @@ export const ChatMessage = ({ role, content, streaming, onRegenerate, messageId,
             <div className="flex items-center gap-0.5 mt-2">
               <ActionButton onClick={handleCopy} label={copied ? "Copied" : "Copy"}>
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied && (
+                  <span className="pointer-events-none absolute left-1/2 -top-7 -translate-x-1/2 px-2 py-0.5 rounded-md bg-foreground text-background text-[11px] font-medium shadow-md whitespace-nowrap animate-fade-in-up">
+                    Copied
+                  </span>
+                )}
               </ActionButton>
 
               <ActionButton
@@ -440,14 +444,19 @@ const UserBubble = ({ content, onEdit, onCopy, copied }: UserBubbleProps) => {
           <p className="whitespace-pre-wrap leading-relaxed text-[14.5px] sm:text-[15px]">{content}</p>
         </div>
       </div>
-      <div className="flex items-center gap-0.5 mt-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+      <div className={`flex items-center gap-0.5 mt-1 transition-opacity ${copied ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}>
         <button
           onClick={onCopy}
           aria-label={copied ? "Copied" : "Copy"}
           title={copied ? "Copied" : "Copy"}
-          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="relative p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         >
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied && (
+            <span className="pointer-events-none absolute left-1/2 -top-7 -translate-x-1/2 px-2 py-0.5 rounded-md bg-foreground text-background text-[11px] font-medium shadow-md whitespace-nowrap animate-fade-in-up">
+              Copied
+            </span>
+          )}
         </button>
         {onEdit && (
           <button
